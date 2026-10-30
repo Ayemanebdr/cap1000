@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F2240">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CAP 1000">
+<meta name="description" content="Suivi du travail, des revenus, du plafond de 964 heures et de l'échéancier de scolarité.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>CAP 1000</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sidebar on desktop, bottom tab bar on phone; one navy "hero" card per view, quiet surfaces elsewhere */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --surface-2:#ECEFF4; --ink:#0E1A2E; --ink-2:#5A6578; --line:#DDE2EA; --line-2:#C3CAD6;
+  --navy:#0F2240; --navy-2:#1B3460; --hero-ink:#F4F2EC; --hero-mute:#A9B6CC;
+  --accent:#2556C9; --accent-soft:#E2EAFB;
+  --good:#16915A; --good-soft:#DDF3E7; --warn:#C96F0C; --warn-soft:#FBEBD6; --bad:#C93A32; --bad-soft:#F9DEDC;
+  --f-display:"Schibsted Grotesk","Figtree",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#08101D; --surface:#101B2D; --surface-2:#172539; --ink:#E7ECF4; --ink-2:#92A0B6; --line:#21314A; --line-2:#33476A;
+  --navy:#16305A; --navy-2:#21407A; --hero-ink:#F4F2EC; --hero-mute:#A9B6CC;
+  --accent:#86A7FF; --accent-soft:#1C2D50;
+  --good:#3EC68A; --good-soft:#123326; --warn:#F2A345; --warn-soft:#3A2A14; --bad:#F2766E; --bad-soft:#3D1C1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08101D; --surface:#101B2D; --surface-2:#172539; --ink:#E7ECF4; --ink-2:#92A0B6; --line:#21314A; --line-2:#33476A;
+  --navy:#16305A; --navy-2:#21407A; --hero-ink:#F4F2EC; --hero-mute:#A9B6CC;
+  --accent:#86A7FF; --accent-soft:#1C2D50;
+  --good:#3EC68A; --good-soft:#123326; --warn:#F2A345; --warn-soft:#3A2A14; --bad:#F2766E; --bad-soft:#3D1C1C; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:-.015em;text-wrap:balance}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num,td.n,.tab{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono)}
+.muted{color:var(--ink-2)}
+.small{font-size:13px}
+
+.shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+.side{display:none}
+.main{min-width:0;padding-block:16px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1180px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+@media (min-width:960px){
+  .shell{grid-template-columns:250px minmax(0,1fr)}
+  .side{display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh;padding:22px 14px;background:var(--surface);border-right:1px solid var(--line)}
+  .main{padding-block:28px 48px;padding-left:32px;padding-right:max(32px,env(safe-area-inset-right,0px))}
+  .tabbar{display:none!important}
+}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand svg{width:36px;height:36px;flex:none}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:-.02em;display:block;line-height:1}
+.brand span{font-size:12px;color:var(--ink-2)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;border:0;background:none;padding:9px 12px;border-radius:12px;text-align:left;color:var(--ink-2);font-weight:500}
+.nav button:hover{background:var(--surface-2);color:var(--ink)}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.ico{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side .addbtn{margin-top:auto}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:500;color:var(--ink-2);padding:6px 0;min-height:52px;justify-content:center}
+.tabbar button[aria-current="page"]{color:var(--accent)}
+.tabbar .plus{width:52px;height:52px;border-radius:18px;background:var(--navy);color:var(--hero-ink);display:grid;place-items:center;margin:-14px auto 0;box-shadow:0 6px 18px rgba(15,34,64,.28)}
+.tabbar .plus .ico{width:24px;height:24px;stroke-width:2.2}
+
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.top h1{font-size:clamp(26px,5vw,34px);line-height:1.08;margin-top:4px}
+.mob-brand{display:flex;align-items:center;gap:8px}
+.side-eb{display:none}
+@media (min-width:960px){.mob-brand{display:none}.side-eb{display:block}}
+.mob-brand svg{width:28px;height:28px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.card h2{font-size:17px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.grid{display:grid;gap:16px}
+@media (min-width:720px){.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g-dash{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+
+.hero{background:var(--navy);color:var(--hero-ink);border:0;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.hero .eyebrow{color:var(--hero-mute)}
+.hero .muted{color:var(--hero-mute)}
+.big{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,10vw,56px);line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.big small{font-size:.38em;font-weight:500;letter-spacing:0;color:var(--hero-mute);margin-left:6px}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;position:relative}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .5s ease}
+.hero .bar{background:rgba(255,255,255,.14)}
+.hero .bar>i{background:#7FD8A8}
+.bar.good>i{background:var(--good)}.bar.warn>i{background:var(--warn)}.bar.bad>i{background:var(--bad)}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+@media (min-width:520px){.kv.k4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kv div{min-width:0}
+.kv dt{font-size:12px;color:var(--ink-2)}
+.hero .kv dt{color:var(--hero-mute)}
+.kv dd{margin:0;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.kv dd small{font-weight:500;font-size:11px;color:var(--ink-2);display:block}
+.hero .kv dd small{color:var(--hero-mute)}
+dl{margin:0}
+
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--ink-2)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.pill.plain::before{display:none}
+.hero .pill{background:rgba(255,255,255,.12);color:var(--hero-ink)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 16px;font-weight:600;background:var(--navy);color:var(--hero-ink);min-height:42px;text-decoration:none}
+.btn:hover{background:var(--navy-2)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-2)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.soft{background:var(--accent-soft);color:var(--accent)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn.sm{min-height:34px;padding:6px 12px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.hero .btn{background:var(--hero-ink);color:var(--navy)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:12px 14px;font-size:14px;background:var(--surface);border:1px solid var(--line)}
+.alert .ico{margin-top:2px}
+.alert.warn{background:var(--warn-soft);border-color:transparent;color:var(--ink)}.alert.warn .ico{color:var(--warn)}
+.alert.bad{background:var(--bad-soft);border-color:transparent}.alert.bad .ico{color:var(--bad)}
+.alert.info{background:var(--accent-soft);border-color:transparent}.alert.info .ico{color:var(--accent)}
+.alert.good{background:var(--good-soft);border-color:transparent}.alert.good .ico{color:var(--good)}
+.alert b{font-weight:700}
+
+.list{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid var(--line);min-width:0}
+.li:first-child{border-top:0}
+.li .grow{flex:1;min-width:0}
+.li .t{font-weight:600}
+.li .s{font-size:13px;color:var(--ink-2)}
+.li .amt{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.li.sup{opacity:.55}.li.sup .t{text-decoration:line-through}
+.date-badge{width:46px;flex:none;text-align:center;border-radius:12px;background:var(--surface-2);padding:5px 0;line-height:1.1}
+.date-badge b{display:block;font-family:var(--f-display);font-size:18px}
+.date-badge span{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.mhead{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding:14px 2px 4px;display:flex;justify-content:space-between;gap:8px}
+
+.seg{display:inline-flex;background:var(--surface-2);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;font-weight:600;font-size:13px;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(14,26,46,.12)}
+.seg.st button[aria-pressed="true"][data-v="worked"]{background:var(--good);color:#fff}
+.seg.st button[aria-pressed="true"][data-v="off"]{background:var(--line-2);color:var(--ink)}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:600;font-size:14px;white-space:nowrap;color:var(--ink-2)}
+.tabs button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label,.flabel{font-size:12px;font-weight:600;color:var(--ink-2)}
+.field .hint{font-size:12px;color:var(--ink-2)}
+input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{background:var(--surface-2);border:1.5px solid transparent;border-radius:12px;padding:10px 12px;width:100%;min-height:44px;font-size:16px}
+textarea{min-height:90px;font-family:var(--f-mono);font-size:13px}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:0;background:var(--surface)}
+.fgrid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.fgrid .full{grid-column:1/-1}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line-2);background:transparent;border-radius:10px;padding:6px 11px;font-weight:600;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.check input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--accent)}
+
+.tablewrap{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:11px;font-family:var(--f-mono);font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.hl td{background:var(--accent-soft)}
+td.wrap{white-space:normal;min-width:180px}
+
+/* Calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .dh{font-size:11px;text-align:center;color:var(--ink-2);font-family:var(--f-mono);padding:4px 0}
+.day{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:64px;padding:5px;text-align:left;display:flex;flex-direction:column;gap:3px;min-width:0}
+.day.out{opacity:.35}
+.day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day .dn{font-size:12px;font-weight:700}
+.tag{font-size:10px;font-weight:700;border-radius:6px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag.c{background:var(--good-soft);color:var(--good)}
+.tag.cp{background:var(--surface-2);color:var(--ink-2);border:1px dashed var(--line-2)}
+.tag.i{background:var(--accent-soft);color:var(--accent)}
+.tag.p{background:var(--warn-soft);color:var(--warn)}
+@media (min-width:720px){.day{min-height:84px;padding:7px}.tag{font-size:11px}}
+
+/* Cap meter */
+.cap-track{position:relative;height:16px;border-radius:99px;background:var(--surface-2);overflow:visible;margin:18px 0 26px}
+.cap-track>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--good)}
+.cap-track .proj{position:absolute;top:0;bottom:0;border-radius:99px;background:repeating-linear-gradient(45deg,var(--line-2) 0 4px,transparent 4px 8px)}
+.cap-track .tick{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--line-2)}
+.cap-track .tick span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:10px;color:var(--ink-2)}
+
+/* Sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(6,12,24,.48);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:calc(100% - 24px - env(safe-area-inset-top,0px));overflow:auto;border-radius:22px 22px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease}
+@media (min-width:720px){.sheet-bg{align-items:center}.sheet{border-radius:22px;max-height:88vh}}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.bar>i{transition:none}}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sheet-h h2{font-size:20px}
+.x{border:0;background:var(--surface-2);width:36px;height:36px;border-radius:12px;display:grid;place-items:center}
+.preview{background:var(--surface-2);border-radius:14px;padding:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:60;max-width:calc(100% - 32px)}
+@media (min-width:960px){.toast{bottom:24px}}
+
+.prose{max-width:72ch;display:flex;flex-direction:column;gap:12px}
+.prose h3{font-size:17px;margin-top:8px}
+.prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.src{font-size:13px;display:flex;flex-direction:column;gap:6px}
+.empty{padding:22px;text-align:center;color:var(--ink-2);display:flex;flex-direction:column;gap:10px;align-items:center}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--ink-2);font-family:var(--f-mono);font-size:10px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.scn{display:flex;flex-direction:column;gap:12px}
+.scn.accepted{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.scn-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.scn h3{font-size:18px}
+.stat-sm{display:flex;flex-direction:column}
+.stat-sm b{font-family:var(--f-display);font-size:24px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.divider{height:1px;background:var(--line);margin:4px 0}
+</style>
+
+<div class="shell">
+  <aside class="side" aria-label="Navigation">
+    <div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0F2240"/><path d="M14 19h26" stroke="#7FD8A8" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/><path d="M13 50c12-1 21-8 27-24" stroke="#F4F2EC" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="45.5" cy="19" r="6.5" fill="#7FD8A8"/></svg><div><b>CAP 1000</b><span>Travail · revenus · scolarité</span></div></div>
+    <nav class="nav" id="sidenav"></nav>
+    <button class="btn addbtn" data-act="addMission"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ajouter une mission</button>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation principale"></nav>
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+"use strict";
+/* ---------- Utilities ---------- */
+const KEY='cap1000.data.v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=n=>Math.round((+n+Number.EPSILON)*100)/100;
+const sum=(a,f=x=>x)=>a.reduce((s,x)=>s+(+f(x)||0),0);
+const num=v=>{if(v===''||v==null)return null;const n=parseFloat(String(v).replace(',','.').replace(/\s/g,''));return isFinite(n)?n:null};
+const fE2=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
+const fE0=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:0,maximumFractionDigits:0});
+const eur=n=>{n=r2(n||0);return Math.abs(n%1)<0.005?fE0.format(n):fE2.format(n)};
+const fH=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1});
+const hh=n=>fH.format(r2(n||0))+' h';
+const pct=n=>fH.format(n||0)+' %';
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const MC=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const JOURS=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d||1)};
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
+const dDiff=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+const mkey=s=>s.slice(0,7);
+const daysIn=mk=>{const [y,m]=mk.split('-').map(Number);return new Date(y,m,0).getDate()};
+const addMonth=(mk,n)=>{const [y,m]=mk.split('-').map(Number);const d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)};
+const monthDate=(first,i)=>{const d=pd(first);const day=d.getDate();const t=new Date(d.getFullYear(),d.getMonth()+i,1);const last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();t.setDate(Math.min(day,last));return iso(t)};
+const months=(a,b)=>{const out=[];let m=a;let g=0;while(m<=b&&g<240){out.push(m);m=addMonth(m,1);g++}return out};
+const mlab=mk=>{const [y,m]=mk.split('-').map(Number);return MOIS[m-1]+' '+y};
+const mlabS=mk=>{const [y,m]=mk.split('-').map(Number);return MC[m-1]+' '+String(y).slice(2)};
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const dlab=s=>{const d=pd(s);return d.getDate()+' '+MC[d.getMonth()]};
+const dlong=s=>{const d=pd(s);return JOURS[d.getDay()]+' '+d.getDate()+' '+MOIS[d.getMonth()]+' '+d.getFullYear()};
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const mondayOf=s=>{const d=pd(s);const k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return iso(d)};
+
+/* ---------- Data ---------- */
+function scenario(name,count){return{id:uid(),name,total:11000,deposit:0,prepaid:0,first:'2026-11-05',count,mode:'equal',lastAmount:0,items:[],note:''}}
+function defaults(){
+  const sat={};['2026-09-26','2026-10-03','2026-10-10','2026-10-17','2026-10-24'].forEach(d=>sat[d]={st:'worked',h:8});
+  sat['2026-10-31']={st:'pending',h:8};
+  const mis=[];
+  ['2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09'].forEach(d=>mis.push({id:uid(),date:d,agency:'Iziwork',company:'',hours:6,rate:9.42,actual:null,note:'6h–12h'}));
+  ['2026-10-12','2026-10-13','2026-10-14'].forEach(d=>mis.push({id:uid(),date:d,agency:'Iziwork',company:'',hours:6,rate:9.42,actual:null,note:'6h–12h'}));
+  const sc=[scenario('Proposition A — 9 mois',9),scenario('Proposition B — 10 mois',10),scenario('Proposition C — 11 mois',11),scenario('Proposition D — 12 mois',12)];
+  return{v:1,
+    settings:{agencies:['Domino RH','RAS Intérim','Iziwork'],monthlyGoal:1000,tuition:11000,carrefourMonthly:340,satHours:8,rateRef:11.13,ratePrudent:9.42,goalRate:'prudent',weeklyMode:'auto',weeklyGoal:17,monthlyHoursGoal:71,trackStart:'2026-11',warnDays:10,theme:'system'},
+    periods:[{id:'p1',start:'2026-09-22',end:'2027-09-21',cap:964,label:'1re période — carte pluriannuelle étudiant'}],
+    saturdays:sat,carrefourPay:{},missions:mis,scenarios:sc,
+    installments:[],revisions:[],agreement:null,payments:[],savings:[],funding:[]};
+}
+let S;let storageOk=true;
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=Object.assign(defaults(),JSON.parse(r));return}}catch(e){storageOk=false}S=defaults()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){storageOk=false}}
+const UI={dashMonth:null,ech:'accord',calMonth:null,projSrc:'accord',cmp:{}};
+
+/* ---------- Core calculations ---------- */
+const st=()=>S.settings;
+const carRate=()=>st().carrefourMonthly/(st().satHours*52/12);
+const goalRate=()=>st().goalRate==='ref'?st().rateRef:st().ratePrudent;
+const missionAmt=m=>m.actual!=null?+m.actual:r2(m.hours*m.rate);
+function satOf(d){return S.saturdays[d]||{st:'pending',h:st().satHours}}
+function firstDay(){return S.periods.reduce((a,p)=>p.start<a?p.start:a,S.periods[0]?.start||'2026-09-22')}
+function saturdaysBetween(a,b){const out=[];let d=pd(a);d.setDate(d.getDate()+((6-d.getDay()+7)%7));let s=iso(d);while(s<=b){if(s>=firstDay())out.push(s);s=addDays(s,7)}return out}
+function workIn(a,b){
+  let carH=0;saturdaysBetween(a,b).forEach(d=>{const x=satOf(d);if(x.st==='worked')carH+=+x.h||0});
+  const ms=S.missions.filter(m=>m.date>=a&&m.date<=b);
+  return{carH,intH:sum(ms,m=>m.hours),intEst:sum(ms,missionAmt),intConf:sum(ms.filter(m=>m.actual!=null),m=>m.actual),nMis:ms.length,days:new Set(ms.map(m=>m.date)).size,ms,total:carH+sum(ms,m=>m.hours)};
+}
+function monthStats(mk){
+  const w=workIn(mk+'-01',mk+'-'+pad(daysIn(mk)));
+  const carEst=r2(w.carH*carRate());const conf=S.carrefourPay[mk];const carConfirmed=conf!=null&&conf!=='';
+  const car=carConfirmed?+conf:carEst;
+  return{...w,carEst,car,carConfirmed,interim:w.intEst,total:r2(car+w.intEst),confirmed:r2((carConfirmed?+conf:0)+w.intConf)};
+}
+const activeInst=()=>S.installments.filter(i=>i.sup==null).sort((a,b)=>a.due<b.due?-1:1);
+const paidOn=i=>r2(sum(S.payments.filter(p=>p.instId===i.id),p=>p.amount));
+function monthGoal(mk){
+  const act=activeInst();
+  if(S.agreement&&act.length){const due=act.filter(i=>mkey(i.due)===mk);return{amount:r2(sum(due,i=>i.amount)),src:due.length?'accord':'aucune',items:due}}
+  return{amount:st().monthlyGoal,src:'defaut',items:[]};
+}
+function chain(upto){
+  const out={};let carry=0;
+  for(const mk of months(st().trackStart,upto)){
+    const s=monthStats(mk);const g=monthGoal(mk).amount;const after=r2(s.total+carry-g);
+    out[mk]={...s,goal:g,carryIn:r2(carry),used:r2(Math.min(carry,Math.max(0,g-s.total))),surplus:r2(Math.max(0,s.total-g)),carryOut:Math.max(0,after),deficit:Math.max(0,-after)};
+    carry=Math.max(0,after);
+  }
+  return out;
+}
+function instStatus(i){
+  const p=paidOn(i),t=today();
+  if(p>=i.amount-0.005)return{k:'paid',l:'Payé intégralement',c:'good'};
+  const late=i.due<t;
+  if(p>0)return late?{k:'partial',l:'Payé partiellement · en retard',c:'bad'}:{k:'partial',l:'Payé partiellement',c:'info'};
+  if(late)return{k:'late',l:'En retard',c:'bad'};
+  if(dDiff(t,i.due)<=st().warnDays)return{k:'soon',l:'À payer prochainement',c:'warn'};
+  return{k:'future',l:'À venir',c:''};
+}
+const periodOf=d=>S.periods.find(p=>d>=p.start&&d<=p.end);
+const curPeriod=()=>periodOf(today())||S.periods.filter(p=>p.start>today()).sort((a,b)=>a.start<b.start?-1:1)[0]||S.periods[S.periods.length-1];
+function capStats(p){
+  const w=workIn(p.start,p.end);const done=w.total;const t=today();
+  const end=t<p.end?t:p.end;const elapsed=Math.max(1,dDiff(p.start,end)+1);const totalD=dDiff(p.start,p.end)+1;
+  const pace=t<p.start?0:done/elapsed;const proj=pace*totalD;
+  const reach=pace>0&&done<p.cap?addDays(p.start,Math.ceil(p.cap/pace)-1):null;
+  const ratio=p.cap?done/p.cap*100:0;
+  const lvl=[100,95,90,80,70,50].find(x=>ratio>=x)||0;
+  return{p,done,carH:w.carH,intH:w.intH,left:Math.max(0,p.cap-done),over:Math.max(0,done-p.cap),ratio,pace,proj,reach,lvl,daysLeft:Math.max(0,dDiff(t,p.end)),elapsed,totalD};
+}
+function capacity(){
+  const c=capStats(curPeriod());const mLeft=Math.max(0.5,c.daysLeft/30.44);
+  const carHm=st().satHours*52/12;const perMonth=c.left/mLeft;const intH=Math.max(0,perMonth-carHm);
+  return{c,mLeft,perMonth,intH,maxPru:r2(st().carrefourMonthly+intH*st().ratePrudent),maxRef:r2(st().carrefourMonthly+intH*st().rateRef)};
+}
+const reserve=()=>r2(sum(S.savings,x=>x.amount)+sum(S.funding,x=>x.amount)-sum(S.payments,x=>x.amount));
+const tuitionTotal=()=>S.agreement?S.agreement.total:st().tuition;
+const prePaid=()=>S.agreement?r2((+S.agreement.deposit||0)+(+S.agreement.prepaid||0)):0;
+const paidTotal=()=>r2(prePaid()+sum(S.payments,p=>p.amount));
+
+function genItems(sc){
+  const n=Math.max(1,Math.min(60,sc.count|0));const net=r2(sc.total-(+sc.deposit||0)-(+sc.prepaid||0));
+  const dates=[...Array(n)].map((_,i)=>monthDate(sc.first,i));
+  if(sc.mode==='custom'){const base=Math.floor(net*100/n)/100;return dates.map((d,i)=>({due:sc.items?.[i]?.due||d,amount:sc.items?.[i]?.amount!=null?+sc.items[i].amount:base}))}
+  let a;
+  if(sc.mode==='last'&&n>1){const last=r2(+sc.lastAmount||0);const each=Math.floor((net-last)*100/(n-1))/100;a=Array(n-1).fill(each);a[0]=r2(net-last-each*(n-2));a.push(last)}
+  else{const each=Math.floor(net*100/n)/100;a=Array(n).fill(each);a[n-1]=r2(net-each*(n-1))}
+  return dates.map((d,i)=>({due:d,amount:a[i]}));
+}
+function project(items,accepted){
+  const t=today();const cm=mkey(t);const rows=[];
+  if(!items.length)return rows;
+  let pool=Math.max(0,reserve());
+  let p=curPeriod();let cum=capStats(p).done;
+  const last=mkey(items.reduce((a,i)=>i.due>a?i.due:a,items[0].due));
+  const cs=monthStats(cm);
+  for(const mk of months(cm,last)){
+    const mStart=mk+'-01',mEnd=mk+'-'+pad(daysIn(mk));let newP=false,noP=false;
+    if(p&&mStart>p.end){const np=S.periods.filter(x=>x.end>=mStart).sort((a,b)=>a.start<b.start?-1:1)[0];if(np){p=np;cum=capStats(np).done;newP=true}else{p=null}}
+    if(!p)noP=true;
+    const due=items.filter(i=>mkey(i.due)===mk);
+    const A=r2(Math.max(0,sum(due,i=>i.amount-(accepted?paidOn(i):0))));
+    const from=mk===cm?addDays(t,1):mStart;
+    const sats=saturdaysBetween(from,mEnd).filter(d=>satOf(d).st!=='off');
+    const satH=sats.length*st().satHours;
+    const carInc=mk===cm?r2(satH*carRate()):st().carrefourMonthly;
+    const fromPool=r2(Math.min(pool,A));pool=r2(pool-fromPool);
+    const toGen=r2(A-fromPool);const already=mk===cm?cs.total:0;
+    const need=r2(Math.max(0,toGen-already-carInc));
+    const hRef=need/st().rateRef,hPru=need/st().ratePrudent;
+    const weeks=Math.max(1,(mk===cm?dDiff(t,mEnd)+1:daysIn(mk))/7);
+    cum+=satH+hPru;
+    const status=noP?'unknown':cum>p.cap+0.01?'over':cum>p.cap*0.9?'tight':'ok';
+    rows.push({mk,A,carInc,fromPool,toGen,already,need,hRef,hPru,wRef:hRef/weeks,wPru:hPru/weeks,satH,cum,cap:p?p.cap:null,status,newP,noP,current:mk===cm,nDue:due.length});
+  }
+  return rows;
+}
+function summarize(items,accepted){
+  const rows=project(items,accepted);const due=rows.filter(r=>r.A>0);
+  const peak=due.reduce((a,r)=>r.hPru>a.hPru?r:a,{hPru:0});
+  const firstOver=rows.find(r=>r.status==='over');const firstTight=rows.find(r=>r.status==='tight');
+  const unk=rows.some(r=>r.noP);
+  const verdict=firstOver?{c:'bad',l:'Dépasse le plafond paramétré'}:firstTight?{c:'warn',l:'Tendu : plus de 90 % du plafond'}:unk?{c:'',l:'Période suivante non paramétrée'}:{c:'good',l:'Compatible avec le plafond'};
+  return{rows,peak,firstOver,firstTight,verdict,totalH:sum(rows,r=>r.hPru),avgNeed:due.length?sum(due,r=>r.need)/due.length:0};
+}
+
+/* ---------- Icons ---------- */
+const I={
+  home:'<path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/>',
+  ech:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6"/>',
+  mis:'<rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V5h6v2M4 12h16"/>',
+  car:'<path d="M5 9h14l-1 10H6z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+  cap:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-5"/>',
+  fin:'<path d="M3 10l9-5 9 5M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/>',
+  his:'<path d="M4 19h16M7 16v-5M12 16V7M17 16v-3"/>',
+  law:'<path d="M12 4v16M6 20h12M5 8h14M5 8l-2 6a3 3 0 0 0 6 0zM19 8l-2 6a3 3 0 0 0 6 0z"/>',
+  set:'<circle cx="12" cy="12" r="3"/><path d="M19 12l2-1-1-3-2 .3-1.4-1.4L17 5l-3-1-1 2h-2L10 4 7 5l.3 2L6 8.4 4 8l-1 3 2 1v1l-2 1 1 3 2-.3 1.4 1.4L7 19l3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+  ok:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  left:'<path d="M15 5l-7 7 7 7"/>',right:'<path d="M9 5l7 7-7 7"/>',
+};
+const ico=(k,c='')=>`<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+const NAV=[['dash','Accueil','home'],['echeancier','Échéancier','ech'],['missions','Missions','mis'],['carrefour','Carrefour','car'],['calendrier','Calendrier','cal'],['plafond','Plafond 964 h','cap'],['financement','Financement','fin'],['historique','Historique','his'],['autorisation','Autorisation de travail','law'],['reglages','Paramètres','set']];
+
+/* ---------- Shared fragments ---------- */
+const pill=(c,l)=>`<span class="pill ${c}">${esc(l)}</span>`;
+const alertBox=(c,html)=>`<div class="alert ${c}">${ico(c==='good'?'ok':c==='info'?'info':'warn')}<div>${html}</div></div>`;
+const head=(eyebrow,title,right='')=>`<div class="top"><div><div class="mob-brand">${brandSvg(26)}<span class="eyebrow">${esc(eyebrow)}</span></div><div class="eyebrow side-eb">${esc(eyebrow)}</div><h1>${title}</h1></div>${right}</div>`;
+function brandSvg(s){return `<svg viewBox="0 0 64 64" width="${s}" height="${s}" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0F2240"/><path d="M14 19h26" stroke="#7FD8A8" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/><path d="M13 50c12-1 21-8 27-24" stroke="#F4F2EC" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="45.5" cy="19" r="6.5" fill="#7FD8A8"/></svg>`}
+const capLvlText=l=>({0:'',50:'La moitié du plafond paramétré est consommée.',70:'70 % du plafond paramétré atteint.',80:'80 % du plafond paramétré atteint : surveille ton rythme.',90:'Attention : 90 % du plafond paramétré atteint.',95:'Avertissement : 95 % du plafond paramétré atteint. Vérifie ta situation avant toute nouvelle mission.',100:'Le plafond paramétré est atteint. N\'enregistre pas de nouvelles heures comme légalement autorisées sans vérifier ta situation.'}[l]);
+const capLvlClass=l=>l>=90?'bad':l>=70?'warn':l>=50?'info':'good';
+
+function globalAlerts(){
+  const out=[];const c=capStats(curPeriod());
+  if(c.lvl>=50)out.push(alertBox(capLvlClass(c.lvl),`<b>Plafond ${hh(c.p.cap)} :</b> ${esc(capLvlText(c.lvl))} ${c.over>0?`<b>${hh(c.over)} au-delà du plafond.</b>`:''}`));
+  activeInst().forEach(i=>{const s=instStatus(i);if(s.k==='late'||(s.k==='partial'&&s.c==='bad'))out.push(alertBox('bad',`<b>Échéance en retard :</b> ${eur(i.amount-paidOn(i))} restent dus depuis le ${dlab(i.due)}.`));else if(s.k==='soon')out.push(alertBox('warn',`<b>Échéance proche :</b> ${eur(i.amount-paidOn(i))} à payer avant le ${dlab(i.due)}.`))});
+  if(S.agreement){const sm=summarize(activeInst(),true);if(sm.firstOver)out.push(alertBox('bad',`<b>Échéancier accepté et plafond :</b> au rythme nécessaire, tes heures dépasseraient le plafond paramétré en ${mlab(sm.firstOver.mk)}. Il faudra un autre financement pour combler l'écart.`))}
+  if(!storageOk)out.push(alertBox('bad','<b>Stockage indisponible :</b> ce navigateur refuse l\'enregistrement local. Exporte une sauvegarde depuis Paramètres.'));
+  return out.length?`<div class="alerts">${out.join('')}</div>`:'';
+}
+
+/* ---------- Views ---------- */
+const V={};
+V.dash=()=>{
+  const cm=mkey(today());if(!UI.dashMonth)UI.dashMonth=cm<st().trackStart?st().trackStart:cm;
+  const mk=UI.dashMonth;const ch=chain(mk<st().trackStart?st().trackStart:mk);const c=ch[mk]||{...monthStats(mk),goal:monthGoal(mk).amount,carryIn:0,used:0,surplus:0,carryOut:0,deficit:0};
+  const g=monthGoal(mk);const avail=r2(c.total+c.carryIn);const prog=c.goal>0?Math.min(100,avail/c.goal*100):100;
+  const remaining=Math.max(0,r2(c.goal-avail));
+  const goalSrc=g.src==='accord'?'Mensualité de l\'accord accepté':g.src==='aucune'?'Aucune échéance ce mois-ci':'Objectif par défaut · aucun accord accepté';
+  const status=c.goal<=0?`Tout revenu de ce mois devient de l'avance.`:avail>=c.goal?`Objectif atteint${c.carryOut>0?`, avec ${eur(c.carryOut)} d'avance`:''}.`:`Il reste ${eur(remaining)} pour atteindre l'objectif.`;
+  const before=mk<st().trackStart;
+  // week
+  const t=today();const mon=mondayOf(t);const sun=addDays(mon,6);const w=workIn(mon,sun);
+  const wg=weeklyGoal(mkey(t));const wLeft=Math.max(0,wg-w.intH);const wAdv=Math.max(0,w.intH-wg);
+  const weekRev=r2(w.carH*carRate()+w.intEst);
+  const sats=saturdaysBetween(mon,sun);
+  // cap
+  const cs=capStats(curPeriod());
+  // next installment
+  const next=activeInst().find(i=>paidOn(i)<i.amount-0.005);
+  const gl=globalTotals();
+  return `
+  ${head(cap1(mlab(mk)),'Tableau de bord',`<div class="row-btns"><button class="btn ghost sm" data-act="dashPrev" aria-label="Mois précédent">${ico('left')}</button><button class="btn ghost sm" data-act="dashNext" aria-label="Mois suivant">${ico('right')}</button></div>`)}
+  ${globalAlerts()}
+  ${before?alertBox('info',`Le suivi mensuel commence en <b>${mlab(st().trackStart)}</b>. Les heures de ce mois comptent quand même dans le plafond annuel.`):''}
+  <div class="grid g-dash">
+    <section class="hero">
+      <div class="card-h" style="margin:0"><span class="eyebrow">${esc(goalSrc)}</span>${avail>=c.goal&&c.goal>0?pill('','Objectif atteint'):''}</div>
+      <div class="big">${eur(avail)}<small>sur ${eur(c.goal)}</small></div>
+      <div class="bar"><i style="width:${prog}%"></i></div>
+      <p>${esc(status)}</p>
+      <dl class="kv k4">
+        <div><dt>Carrefour</dt><dd>${eur(c.car)}<small>${c.carConfirmed?'fiche de paie':'estimé · '+hh(c.carH)}</small></dd></div>
+        <div><dt>Intérim</dt><dd>${eur(c.interim)}<small>${hh(c.intH)} · ${c.nMis} mission${c.nMis>1?'s':''}</small></dd></div>
+        <div><dt>Avance reportée</dt><dd>${eur(c.carryIn)}<small>utilisée : ${eur(c.used)}</small></dd></div>
+        <div><dt>Montants confirmés</dt><dd>${eur(c.confirmed)}<small>sur ${eur(c.total)} estimés</small></dd></div>
+      </dl>
+      ${c.surplus>0?`<p class="small muted">Excédent du mois : ${eur(c.surplus)}. Avance disponible pour le mois suivant : ${eur(c.carryOut)}. C'est un calcul : seul l'argent mis de côté (Financement) est réellement réservé.</p>`:''}
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Prochaine échéance</h2>${S.agreement?pill('good','Accord accepté'):pill('','Simulation seulement')}</div>
+      ${next?(()=>{const s=instStatus(next);const left=r2(next.amount-paidOn(next));return `<div class="stat-sm"><span class="muted small">${dlong(next.due)}</span><b>${eur(left)}</b></div><div style="margin:10px 0">${pill(s.c,s.l)} <span class="small muted">${dDiff(today(),next.due)>=0?'dans '+dDiff(today(),next.due)+' j':''}</span></div><button class="btn sm" data-act="addPayment" data-id="${next.id}">Enregistrer un paiement</button>`})()
+      :S.agreement?`<p>Toutes les échéances de l'accord sont payées.</p>`:`<p class="muted">Aucun accord n'est encore accepté. Les ${S.scenarios.length} propositions restent des simulations : ton objectif utilise ${eur(st().monthlyGoal)} par défaut.</p><div style="margin-top:12px"><button class="btn sm soft" data-act="go" data-v="echeancier" data-tab="simu">Comparer les propositions</button></div>`}
+      <div class="divider" style="margin:16px 0"></div>
+      <dl class="kv"><div><dt>Payé à l'école</dt><dd>${eur(paidTotal())}</dd></div><div><dt>Reste à payer</dt><dd>${eur(Math.max(0,tuitionTotal()-paidTotal()))}</dd></div></dl>
+    </section>
+  </div>
+  <div class="grid g3">
+    <section class="card">
+      <div class="card-h"><h2>Cette semaine</h2>${w.intH>=wg?pill('good',wAdv>0?`+${hh(wAdv)} d'avance`:'Objectif atteint'):pill('warn',`${hh(wLeft)} restantes`)}</div>
+      <div class="stat-sm"><span class="muted small">Intérim · ${dlab(mon)} – ${dlab(sun)}</span><b>${hh(w.intH)} <span class="muted" style="font-size:15px">/ ${hh(wg)}</span></b></div>
+      <div class="bar ${w.intH>=wg?'good':''}" style="margin:10px 0 14px"><i style="width:${wg?Math.min(100,w.intH/wg*100):100}%"></i></div>
+      <dl class="kv"><div><dt>Jours d'intérim</dt><dd>${w.days}</dd></div><div><dt>Revenu estimé</dt><dd>${eur(weekRev)}</dd></div>
+      <div><dt>Samedi Carrefour</dt><dd>${sats.map(d=>{const x=satOf(d);return x.st==='worked'?hh(x.h):x.st==='off'?'Non travaillé':'À confirmer'}).join(', ')||'—'}</dd></div><div><dt>Objectif</dt><dd>${st().weeklyMode==='auto'?'Calculé':'Fixe'}<small>${st().weeklyMode==='auto'?'selon la mensualité du mois':''}</small></dd></div></dl>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Plafond ${hh(cs.p.cap)}</h2>${pill(capLvlClass(cs.lvl),pct(Math.round(cs.ratio*10)/10))}</div>
+      <div class="stat-sm"><span class="muted small">Heures restantes jusqu'au ${dlab(cs.p.end)}</span><b>${hh(cs.left)}</b></div>
+      <div class="bar ${capLvlClass(cs.lvl)==='info'?'':capLvlClass(cs.lvl)}" style="margin:10px 0 14px"><i style="width:${Math.min(100,cs.ratio)}%"></i></div>
+      <dl class="kv"><div><dt>Effectuées</dt><dd>${hh(cs.done)}</dd></div><div><dt>Projection fin de période</dt><dd>${hh(cs.proj)}</dd></div></dl>
+      <div style="margin-top:12px"><button class="btn sm ghost" data-act="go" data-v="plafond">Détail du plafond</button></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Suivi global</h2></div>
+      <dl class="kv">
+        <div><dt>Heures Carrefour</dt><dd>${hh(gl.carH)}</dd></div><div><dt>Heures intérim</dt><dd>${hh(gl.intH)}</dd></div>
+        <div><dt>Total travaillé</dt><dd>${hh(gl.carH+gl.intH)}</dd></div><div><dt>Revenus cumulés</dt><dd>${eur(gl.income)}<small>depuis ${dlab(gl.from)}</small></dd></div>
+        <div><dt>Mis de côté</dt><dd>${eur(sum(S.savings,x=>x.amount))}</dd></div><div><dt>Reste à financer</dt><dd>${eur(Math.max(0,tuitionTotal()-paidTotal()-Math.max(0,reserve())))}</dd></div>
+      </dl>
+    </section>
+  </div>`;
+};
+function weeklyGoal(mk){
+  if(st().weeklyMode!=='auto')return +st().weeklyGoal||0;
+  const g=monthGoal(mk<st().trackStart?st().trackStart:mk).amount;const need=Math.max(0,g-st().carrefourMonthly);
+  return Math.ceil(need/goalRate()/(daysIn(mk)/7));
+}
+function globalTotals(){
+  const from=firstDay();const to='2099-12-31';const w=workIn(from,to);
+  const ms=months(mkey(from),mkey(today()));const income=sum(ms,m=>monthStats(m).total);
+  return{carH:w.carH,intH:w.intH,income,from};
+}
+
+/* --- Échéancier --- */
+V.echeancier=()=>{
+  const tab=UI.ech;
+  return `${head('Scolarité','Échéancier de scolarité')}
+  <div class="tabs" role="group">${[['accord','Accord accepté'],['simu','Simulateur'],['proj','Projection mensuelle']].map(([k,l])=>`<button aria-pressed="${tab===k}" data-act="echTab" data-v="${k}">${l}</button>`).join('')}</div>
+  ${tab==='accord'?echAccord():tab==='simu'?echSimu():echProj()}`;
+};
+function capacityBox(){
+  const k=capacity();
+  return alertBox(k.maxPru<st().monthlyGoal?'warn':'info',`<b>Capacité légale estimée :</b> il te reste ${hh(k.c.left)} sur la période jusqu'au ${dlab(k.c.p.end)}, soit environ ${hh(k.perMonth)} par mois (Carrefour compris). Au maximum, cela représente environ <b>${eur(k.maxPru)}/mois</b> au taux prudent et ${eur(k.maxRef)}/mois au taux de référence. Une mensualité plus élevée devra être couverte par de l'épargne ou un financement extérieur.`);
+}
+function echAccord(){
+  if(!S.agreement)return `<section class="card"><div class="empty">${ico('ech')}<h2>Aucun accord accepté</h2><p>Les propositions restent des simulations tant que tu n'as pas confirmé les conditions avec l'établissement. Ton objectif mensuel utilise ${eur(st().monthlyGoal)} par défaut.</p><button class="btn" data-act="echTab" data-v="simu">Ouvrir le simulateur</button></div></section>${capacityBox()}`;
+  const a=S.agreement;const act=activeInst();const paidSched=sum(S.payments.filter(p=>p.instId),p=>p.amount);
+  const sched=sum(act,i=>i.amount);const check=r2(sched+prePaid()-a.total);
+  const sup=S.installments.filter(i=>i.sup!=null).sort((x,y)=>x.due<y.due?-1:1);
+  const sm=summarize(act,true);
+  return `
+  <section class="hero">
+    <div class="card-h" style="margin:0"><span class="eyebrow">Accord accepté · version ${a.rev}</span>${pill('','Confirmé le '+dlab(a.confirmDate))}</div>
+    <h2 style="font-size:22px">${esc(a.name)}</h2>
+    <dl class="kv k4">
+      <div><dt>Coût total</dt><dd>${eur(a.total)}</dd></div>
+      <div><dt>Acompte + déjà payé</dt><dd>${eur(prePaid())}</dd></div>
+      <div><dt>Payé sur l'échéancier</dt><dd>${eur(paidSched)}</dd></div>
+      <div><dt>Reste à payer</dt><dd>${eur(Math.max(0,a.total-paidTotal()))}</dd></div>
+    </dl>
+    <div class="row-btns"><button class="btn sm" data-act="echTab" data-v="simu">Réviser l'accord</button><button class="btn sm" style="background:rgba(255,255,255,.14);color:var(--hero-ink)" data-act="editInst" data-id="">Ajouter une échéance</button></div>
+  </section>
+  ${Math.abs(check)>0.01?alertBox('warn',`Les échéances actives (${eur(sched)}) plus l'acompte et le déjà payé (${eur(prePaid())}) ne correspondent pas au coût total (${eur(a.total)}) : écart de ${eur(check)}.`):''}
+  ${sm.firstOver?alertBox('bad',`Au rythme nécessaire pour cet accord, tes heures dépasseraient le plafond paramétré à partir de <b>${mlab(sm.firstOver.mk)}</b>. Voir l'onglet Projection.`):''}
+  <section class="card">
+    <div class="card-h"><h2>Calendrier des paiements</h2><span class="small muted">${act.length} échéance${act.length>1?'s':''}</span></div>
+    <div class="list">${act.map(i=>{const s=instStatus(i);const p=paidOn(i);const d=pd(i.due);return `<div class="li"><div class="date-badge"><b>${d.getDate()}</b><span>${MC[d.getMonth()]}</span></div><div class="grow"><div class="t">${eur(i.amount)} ${pill(s.c,s.l)}</div><div class="s">${p>0?`Payé ${eur(p)} · reste ${eur(Math.max(0,i.amount-p))}`:'Rien payé'} · ${d.getFullYear()}</div></div><div class="row-btns">${s.k!=='paid'?`<button class="btn sm" data-act="addPayment" data-id="${i.id}">Payer</button>`:''}${p===0?`<button class="btn sm ghost" data-act="editInst" data-id="${i.id}">Modifier</button>`:''}</div></div>`}).join('')}</div>
+  </section>
+  <section class="card">
+    <div class="card-h"><h2>Historique des versions</h2></div>
+    <div class="list">${S.revisions.slice().reverse().map(r=>`<div class="li"><div class="grow"><div class="t">Version ${r.rev} · ${esc(r.name)}</div><div class="s">${dlab(r.date)} — ${esc(r.summary)}</div></div></div>`).join('')}</div>
+    ${sup.length?`<div class="mhead"><span>Anciennes échéances remplacées</span></div><div class="list">${sup.map(i=>`<div class="li sup"><div class="grow"><div class="t">${eur(i.amount)} · ${dlab(i.due)} ${pd(i.due).getFullYear()}</div><div class="s">Créée en version ${i.rev}, remplacée en version ${i.sup}</div></div></div>`).join('')}</div>`:''}
+  </section>`;
+}
+function echSimu(){
+  const accId=S.agreement?.scenarioId;
+  return `
+  ${capacityBox()}
+  ${S.agreement?alertBox('info',`Un accord est déjà accepté. Accepter une autre proposition crée une nouvelle version : les échéances déjà payées (même partiellement) et tous les paiements sont conservés, seules les échéances futures non payées sont remplacées.`):''}
+  <div class="row-btns"><button class="btn" data-act="editScn" data-id="">${ico('plus')}Nouvelle proposition</button></div>
+  <div class="grid g2">${S.scenarios.map(sc=>{const items=genItems(sc);const sm=summarize(items,false);const amts=[...new Set(items.map(i=>i.amount))];const acc=sc.id===accId;
+    return `<section class="card scn ${acc?'accepted':''}">
+      <div class="scn-top"><div><h3>${esc(sc.name)}</h3><span class="small muted">${items.length} mensualités · ${dlab(items[0].due)} → ${dlab(items[items.length-1].due)} ${pd(items[items.length-1].due).getFullYear()}</span></div>${acc?pill('good','Accord accepté'):pill('plain','Simulation')}</div>
+      <dl class="kv">
+        <div><dt>Mensualité</dt><dd>${amts.length===1?eur(amts[0]):eur(Math.min(...amts))+' – '+eur(Math.max(...amts))}</dd></div>
+        <div><dt>Besoin intérim au pic</dt><dd>${eur(sm.peak.need||0)}<small>par mois</small></dd></div>
+        <div><dt>Heures intérim / mois</dt><dd>${hh(sm.peak.hPru||0)}<small>prudent · ${hh(sm.peak.hRef||0)} en référence</small></dd></div>
+        <div><dt>Par semaine</dt><dd>${hh(sm.peak.wPru||0)}<small>indicatif, prudent</small></dd></div>
+      </dl>
+      <div>${pill(sm.verdict.c,sm.verdict.l)}${sm.firstOver?` <span class="small muted">dès ${mlab(sm.firstOver.mk)}</span>`:''}</div>
+      <div class="row-btns">
+        <button class="btn sm ghost" data-act="editScn" data-id="${sc.id}">Modifier</button>
+        <button class="btn sm ghost" data-act="dupScn" data-id="${sc.id}">Dupliquer</button>
+        <button class="btn sm ghost" data-act="projScn" data-id="${sc.id}">Projection</button>
+        ${acc?'':`<button class="btn sm soft" data-act="acceptScn" data-id="${sc.id}">Marquer comme accord accepté</button>`}
+      </div></section>`}).join('')}</div>
+  <section class="card"><div class="card-h"><h2>Comparaison</h2><span class="small muted">Calcul au taux prudent de ${eur(st().ratePrudent)}/h, après ${eur(st().carrefourMonthly)} de Carrefour</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Proposition</th><th class="n">Mensualités</th><th class="n">Montant</th><th>Fin</th><th class="n">Besoin intérim</th><th class="n">h/mois réf.</th><th class="n">h/mois prudent</th><th class="n">h/sem.</th><th class="n">Heures nécessaires</th><th>Plafond</th></tr></thead><tbody>
+  ${S.scenarios.map(sc=>{const it=genItems(sc);const sm=summarize(it,false);return `<tr class="${sc.id===accId?'hl':''}"><td>${esc(sc.name)}</td><td class="n">${it.length}</td><td class="n">${eur(it[0].amount)}</td><td>${mlabS(mkey(it[it.length-1].due))}</td><td class="n">${eur(sm.peak.need||0)}</td><td class="n">${hh(sm.peak.hRef||0)}</td><td class="n">${hh(sm.peak.hPru||0)}</td><td class="n">${hh(sm.peak.wPru||0)}</td><td class="n">${hh(sm.totalH+sum(sm.rows,r=>r.satH))}</td><td>${pill(sm.verdict.c,sm.verdict.l)}</td></tr>`}).join('')}
+  </tbody></table></div>
+  <p class="small muted" style="margin-top:10px">« Heures nécessaires » additionne Carrefour et intérim d'ici la dernière échéance, au taux prudent. La capacité restante sur la période en cours est de ${hh(capStats(curPeriod()).left)}.</p></section>`;
+}
+function echProj(){
+  const opts=[['accord','Accord accepté'],...S.scenarios.map(s=>[s.id,s.name])];
+  if(UI.projSrc==='accord'&&!S.agreement)UI.projSrc=S.scenarios[0]?.id||'accord';
+  const src=UI.projSrc;const isAcc=src==='accord';
+  const items=isAcc?activeInst():(()=>{const s=S.scenarios.find(x=>x.id===src);return s?genItems(s):[]})();
+  const sm=summarize(items,isAcc);
+  return `
+  <section class="card"><div class="fgrid"><div class="field full"><label for="projSrc">Échéancier à projeter</label><select id="projSrc" data-chg="projSrc">${opts.filter(o=>o[0]!=='accord'||S.agreement).map(o=>`<option value="${o[0]}" ${o[0]===src?'selected':''}>${esc(o[1])}${o[0]!=='accord'&&o[0]===S.agreement?.scenarioId?' (accepté)':''}</option>`).join('')}</select></div></div>
+  <p class="small muted" style="margin-top:10px">${isAcc?'Accord officiel : les montants déjà payés sont déduits.':'Simulation : rien n\'est considéré comme payé ni accepté.'} Le capital réellement mis de côté (${eur(Math.max(0,reserve()))}) couvre d'abord les premières échéances. Les heures sont cumulées depuis le début de la période en cours, au taux prudent.</p></section>
+  ${sm.firstOver?alertBox('bad',`À partir de <b>${mlab(sm.firstOver.mk)}</b>, les heures nécessaires dépassent le plafond paramétré. L'application ne suppose pas que tu peux légalement les effectuer : prévois un autre financement ou une autre durée de paiement.`):sm.firstTight?alertBox('warn',`À partir de ${mlab(sm.firstTight.mk)}, tu dépasserais 90 % du plafond paramétré.`):items.length?alertBox('good','Ce rythme reste sous le plafond paramétré, sous réserve de tenir les heures prévues.'):''}
+  ${sm.rows.some(r=>r.noP)?alertBox('warn','Certains mois tombent hors des périodes paramétrées. Ajoute la période suivante dans « Plafond 964 h » après vérification de la règle applicable.'):''}
+  <section class="card"><div class="tablewrap"><table><thead><tr><th>Mois</th><th class="n">Mensualité</th><th class="n">Économies utilisées</th><th class="n">Carrefour prévu</th><th class="n">Déjà gagné</th><th class="n">Reste à générer</th><th class="n">Intérim nécessaire</th><th class="n">h réf.</th><th class="n">h prudent</th><th class="n">h/sem.</th><th class="n">Cumul période</th><th>Plafond</th></tr></thead><tbody>
+  ${sm.rows.map(r=>`<tr class="${r.current?'hl':''}"><td>${cap1(mlabS(r.mk))}${r.newP?' · nouvelle période':''}</td><td class="n">${eur(r.A)}</td><td class="n">${eur(r.fromPool)}</td><td class="n">${eur(r.carInc)}</td><td class="n">${eur(r.already)}</td><td class="n">${eur(r.toGen)}</td><td class="n">${eur(r.need)}</td><td class="n">${hh(r.hRef)}</td><td class="n">${hh(r.hPru)}</td><td class="n">${hh(r.wPru)}</td><td class="n">${hh(r.cum)}${r.cap?' / '+fH.format(r.cap):''}</td><td>${r.status==='over'?pill('bad','Dépassement'):r.status==='tight'?pill('warn','> 90 %'):r.status==='unknown'?pill('','À vérifier'):pill('good','OK')}</td></tr>`).join('')||'<tr><td colspan="12">Aucune échéance.</td></tr>'}
+  </tbody></table></div></section>`;
+}
+
+/* --- Missions --- */
+V.missions=()=>{
+  const ms=S.missions.slice().sort((a,b)=>a.date<b.date?1:-1);const groups={};ms.forEach(m=>(groups[mkey(m.date)]=groups[mkey(m.date)]||[]).push(m));
+  const cm=monthStats(mkey(today()));
+  return `${head('Intérim','Missions',`<button class="btn" data-act="addMission">${ico('plus')}Ajouter une mission</button>`)}
+  <section class="card"><dl class="kv k4"><div><dt>Ce mois</dt><dd>${hh(cm.intH)}</dd></div><div><dt>Estimé</dt><dd>${eur(cm.intEst)}</dd></div><div><dt>Confirmé</dt><dd>${eur(cm.intConf)}</dd></div><div><dt>Missions</dt><dd>${cm.nMis}</dd></div></dl></section>
+  ${agencyCard()}
+  <section class="card">${ms.length?Object.keys(groups).map(mk=>`<div class="mhead"><span>${mlab(mk)}</span><span>${hh(sum(groups[mk],m=>m.hours))} · ${eur(sum(groups[mk],missionAmt))}</span></div><div class="list">${groups[mk].map(missionLi).join('')}</div>`).join(''):`<div class="empty"><p>Aucune mission enregistrée.</p></div>`}</section>`;
+};
+function agencyCard(){
+  const p=curPeriod();const ms=S.missions.filter(m=>m.date>=p.start&&m.date<=p.end);
+  const names=[...new Set([...myAgencies(),...ms.map(m=>m.agency||'Sans agence')])];
+  const rows=names.map(n=>{const x=ms.filter(m=>(m.agency||'Sans agence')===n);return{n,h:sum(x,m=>m.hours),e:sum(x,missionAmt),k:x.length,last:x.reduce((a,m)=>m.date>a?m.date:a,'')}});
+  return `<section class="card"><div class="card-h"><h2>Par agence</h2><span class="small muted">Période du plafond en cours</span></div>
+  <div class="list">${rows.map(r=>`<div class="li"><div class="grow"><div class="t">${esc(r.n)}</div><div class="s">${r.k?`${r.k} mission${r.k>1?'s':''} · dernière le ${dlab(r.last)}`:'Aucune mission sur la période'}</div></div><div class="amt">${hh(r.h)}<div class="small muted">${eur(r.e)}</div></div></div>`).join('')}</div>
+  <p class="small muted" style="margin-top:10px">Chaque agence est un employeur distinct : elle doit faire sa déclaration nominative en préfecture avant ta première mission, et aucune ne voit les heures faites ailleurs. Le total qui compte pour le plafond est celui de toutes les agences et de Carrefour réunis.</p></section>`;
+}
+function missionLi(m){const d=pd(m.date);return `<div class="li" role="button" tabindex="0" data-act="editMission" data-id="${m.id}" style="cursor:pointer"><div class="date-badge"><b>${d.getDate()}</b><span>${MC[d.getMonth()]}</span></div><div class="grow"><div class="t">${esc(m.company||m.agency||'Mission')} · ${hh(m.hours)}</div><div class="s">${esc(m.agency)} · ${eur(m.rate)}/h${m.note?' · '+esc(m.note):''}</div></div><div class="amt">${eur(missionAmt(m))}<div>${m.actual!=null?pill('good','Confirmé'):pill('','Estimé')}</div></div></div>`}
+
+/* --- Carrefour --- */
+V.carrefour=()=>{
+  const cm=mkey(today());const ms=months(mkey(firstDay()),addMonth(cm,2)).reverse();
+  return `${head('Emploi étudiant','Carrefour')}
+  <section class="card"><dl class="kv k4"><div><dt>Jour habituel</dt><dd>Samedi</dd></div><div><dt>Horaires</dt><dd>12h30 – 21h00</dd></div><div><dt>Durée rémunérée</dt><dd>${hh(st().satHours)}</dd></div><div><dt>Salaire estimé</dt><dd>${eur(st().carrefourMonthly)}<small>≈ ${eur(carRate())}/h</small></dd></div></dl>
+  <p class="small muted" style="margin-top:12px">Chaque samedi est rattaché à sa date de travail, une seule fois. Un samedi travaillé le 31 octobre compte en octobre, même s'il est payé sur la fiche de novembre.</p></section>
+  ${ms.map(mk=>{const sats=saturdaysBetween(mk+'-01',mk+'-'+pad(daysIn(mk)));if(!sats.length)return'';const s=monthStats(mk);return `<section class="card"><div class="card-h"><h2>${cap1(mlab(mk))}</h2><span class="small muted">${hh(s.carH)} · estimé ${eur(s.carEst)}</span></div>
+  <div class="list">${sats.map(d=>{const x=satOf(d);return `<div class="li" style="flex-wrap:wrap"><div class="grow"><div class="t">${cap1(dlong(d))}</div><div class="s">${x.st==='worked'?hh(x.h)+' comptées':x.st==='off'?'Non travaillé':'En attente de confirmation'}</div></div>
+  <div class="seg st" role="group" aria-label="Statut du ${dlab(d)}">${[['worked','Travaillé'],['off','Non'],['pending','En attente']].map(([v,l])=>`<button data-act="satSet" data-d="${d}" data-v="${v}" aria-pressed="${x.st===v}">${l}</button>`).join('')}</div>
+  ${x.st==='worked'?`<input type="number" step="0.25" min="0" max="14" id="sh-${d}" value="${x.h}" data-chg="satH" data-d="${d}" aria-label="Heures du ${dlab(d)}" style="width:86px">`:''}</div>`}).join('')}</div>
+  <div class="fgrid" style="margin-top:12px"><div class="field full"><label for="cp-${mk}">Montant réel de la fiche de paie pour le travail de ${mlab(mk)} (facultatif)</label><input type="number" step="0.01" id="cp-${mk}" placeholder="Estimation : ${eur(s.carEst)}" value="${S.carrefourPay[mk]??''}" data-chg="carPay" data-m="${mk}"></div></div></section>`}).join('')}`;
+};
+
+/* --- Calendrier --- */
+V.calendrier=()=>{
+  if(!UI.calMonth)UI.calMonth=mkey(today());const mk=UI.calMonth;
+  const first=mk+'-01';const start=mondayOf(first);const end=addDays(mondayOf(mk+'-'+pad(daysIn(mk))),6);
+  const days=[];for(let d=start;d<=end;d=addDays(d,7))for(let k=0;k<7;k++)days.push(addDays(d,k));
+  const t=today();const inst=activeInst();
+  const cells=days.map(d=>{const out=mkey(d)!==mk;const tags=[];const dd=pd(d);
+    if(dd.getDay()===6&&d>=firstDay()){const x=satOf(d);if(x.st==='worked')tags.push(`<span class="tag c">C ${fH.format(x.h)}h</span>`);else if(x.st==='pending')tags.push(`<span class="tag cp">C ?</span>`)}
+    const mh=sum(S.missions.filter(m=>m.date===d),m=>m.hours);if(mh)tags.push(`<span class="tag i">I ${fH.format(mh)}h</span>`);
+    inst.filter(i=>i.due===d).forEach(i=>tags.push(`<span class="tag p">${eur(i.amount)}</span>`));
+    return `<button class="day ${out?'out':''} ${d===t?'today':''}" data-act="dayOpen" data-d="${d}" aria-label="${dlong(d)}"><span class="dn">${dd.getDate()}</span>${tags.join('')}</button>`}).join('');
+  const weeks=[];for(let d=start;d<=end;d=addDays(d,7))weeks.push(d);
+  const wg=weeklyGoal(mk);
+  return `${head('Planning','Calendrier',`<div class="row-btns"><button class="btn ghost sm" data-act="calPrev" aria-label="Mois précédent">${ico('left')}</button><span style="align-self:center;font-weight:700;min-width:120px;text-align:center">${cap1(mlab(mk))}</span><button class="btn ghost sm" data-act="calNext" aria-label="Mois suivant">${ico('right')}</button></div>`)}
+  <section class="card"><div class="cal">${['L','M','M','J','V','S','D'].map(x=>`<div class="dh">${x}</div>`).join('')}${cells}</div>
+  <div class="legend" style="margin-top:12px"><span><i style="background:var(--good-soft);border:1px solid var(--good)"></i>Carrefour</span><span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Intérim</span><span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>Échéance école</span><span><i style="border:1px dashed var(--line-2)"></i>Samedi à confirmer</span></div></section>
+  <section class="card"><div class="card-h"><h2>Semaines</h2><span class="small muted">Objectif intérim : ${hh(wg)} / semaine</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Semaine</th><th class="n">Carrefour</th><th class="n">Intérim</th><th class="n">Total</th><th class="n">Revenu estimé</th><th>Objectif</th></tr></thead><tbody>
+  ${weeks.map(w=>{const x=workIn(w,addDays(w,6));const rev=r2(x.carH*carRate()+x.intEst);const fut=w>t;const diff=x.intH-wg;return `<tr class="${t>=w&&t<=addDays(w,6)?'hl':''}"><td>${dlab(w)} – ${dlab(addDays(w,6))}</td><td class="n">${hh(x.carH)}</td><td class="n">${hh(x.intH)}</td><td class="n">${hh(x.total)}</td><td class="n">${eur(rev)}</td><td>${fut&&!x.intH?pill('','À venir'):diff>=0?pill('good',diff>0?'+'+hh(diff):'Atteint'):pill('warn',hh(-diff)+' manquantes')}</td></tr>`}).join('')}
+  </tbody></table></div></section>`;
+};
+
+/* --- Plafond --- */
+V.plafond=()=>{
+  const c=capStats(curPeriod());const p=c.p;
+  const projPct=Math.min(100,c.proj/p.cap*100);
+  return `${head('Titre de séjour étudiant','Plafond de '+hh(p.cap))}
+  ${c.lvl>=50?alertBox(capLvlClass(c.lvl),esc(capLvlText(c.lvl))):''}
+  <section class="card">
+    <div class="card-h"><h2>${esc(p.label)}</h2><span class="small muted">${dlab(p.start)} ${pd(p.start).getFullYear()} → ${dlab(p.end)} ${pd(p.end).getFullYear()}</span></div>
+    <div class="grid g3" style="gap:12px">
+      <div class="stat-sm"><span class="small muted">Heures effectuées</span><b>${hh(c.done)}</b></div>
+      <div class="stat-sm"><span class="small muted">Heures restantes</span><b>${hh(c.left)}</b></div>
+      <div class="stat-sm"><span class="small muted">Plafond consommé</span><b>${pct(Math.round(c.ratio*10)/10)}</b></div>
+    </div>
+    <div class="cap-track" role="img" aria-label="${pct(Math.round(c.ratio))} du plafond consommé">
+      <div class="proj" style="left:0;width:${projPct}%"></div><i style="width:${Math.min(100,c.ratio)}%;background:var(--${capLvlClass(c.lvl)==='info'?'good':capLvlClass(c.lvl)})"></i>
+      ${[50,70,80,90,95,100].map(x=>`<span class="tick" style="left:calc(${x}% - 1px)"><span>${x}</span></span>`).join('')}
+    </div>
+    <dl class="kv k4">
+      <div><dt>Carrefour</dt><dd>${hh(c.carH)}</dd></div><div><dt>Intérim</dt><dd>${hh(c.intH)}</dd></div>
+      <div><dt>Projection fin de période</dt><dd>${hh(c.proj)}<small>au rythme de ${fH.format(c.pace*7)} h/semaine</small></dd></div>
+      <div><dt>Plafond atteint vers</dt><dd>${c.reach&&c.reach<=p.end?dlab(c.reach)+' '+pd(c.reach).getFullYear():c.over>0?'Déjà atteint':'Après la fin de période'}</dd></div>
+    </dl>
+    ${c.over>0?`<div style="margin-top:12px">${alertBox('bad',`<b>${hh(c.over)} enregistrées au-delà du plafond.</b> Ces heures sont conservées dans l'historique réel ; elles ne sont pas considérées comme autorisées.`)}</div>`:''}
+    <p class="small muted" style="margin-top:12px">Toutes les heures salariées sont additionnées : Carrefour, intérim et tout autre employeur. Le compteur ne repart pas au 1er janvier. Les heures effectuées avant le ${dlab(p.start)} ${pd(p.start).getFullYear()} ne sont pas comptées dans cette période.</p>
+  </section>
+  <section class="card"><div class="card-h"><h2>Périodes de référence</h2><button class="btn sm ghost" data-act="editPeriod" data-id="">${ico('plus')}Ajouter une période</button></div>
+  <div class="list">${S.periods.slice().sort((a,b)=>a.start<b.start?-1:1).map(x=>{const k=capStats(x);return `<div class="li"><div class="grow"><div class="t">${esc(x.label)}</div><div class="s">${dlab(x.start)} ${pd(x.start).getFullYear()} → ${dlab(x.end)} ${pd(x.end).getFullYear()} · plafond ${hh(x.cap)}</div></div><div class="amt">${hh(k.done)}<div class="small muted">${pct(Math.round(k.ratio))}</div></div><button class="btn sm ghost" data-act="editPeriod" data-id="${x.id}">Modifier</button></div>`}).join('')}</div>
+  <p class="small muted" style="margin-top:10px">La période initiale (22 sept. 2026 → 21 sept. 2027) suit ta demande et reste à confirmer : selon Service-Public, la durée annuelle commence à la délivrance de la carte. Corrige les dates si une vérification officielle le demande.</p></section>`;
+};
+
+/* --- Financement --- */
+V.financement=()=>{
+  const total=tuitionTotal();const paid=paidTotal();const saved=sum(S.savings,x=>x.amount);const ext=sum(S.funding,x=>x.amount);const res=reserve();
+  const secured=r2(paid+Math.max(0,res));const left=Math.max(0,r2(total-secured));const pr=Math.min(100,secured/total*100);
+  // projection
+  const recent=months(addMonth(mkey(today()),-2),mkey(today()));const flow=sum(recent,mk=>sum(S.savings.filter(x=>mkey(x.date)===mk),x=>x.amount)+sum(S.funding.filter(x=>mkey(x.date)===mk),x=>x.amount))/3;
+  const eta=flow>0?addMonth(mkey(today()),Math.ceil(left/flow)):null;
+  const li=(arr,kind)=>arr.slice().sort((a,b)=>a.date<b.date?1:-1).map(x=>`<div class="li"><div class="grow"><div class="t">${eur(x.amount)}${kind==='pay'&&x.instId?' · échéance du '+dlab(S.installments.find(i=>i.id===x.instId)?.due||x.date):''}</div><div class="s">${dlab(x.date)} ${pd(x.date).getFullYear()} · ${esc(x.method||x.source||'')}${x.note?' · '+esc(x.note):''}</div></div><button class="btn sm ghost" data-act="delEntry" data-kind="${kind}" data-id="${x.id}">Supprimer</button></div>`).join('')||'<div class="empty small">Rien pour l\'instant.</div>';
+  return `${head('Scolarité','Financement')}
+  <section class="hero"><span class="eyebrow">Sécurisé pour la formation</span><div class="big">${eur(secured)}<small>sur ${eur(total)}</small></div><div class="bar"><i style="width:${pr}%"></i></div>
+  <dl class="kv k4"><div><dt>Payé à l'école</dt><dd>${eur(paid)}</dd></div><div><dt>Économisé (mis de côté)</dt><dd>${eur(saved)}</dd></div><div><dt>Disponible réservé</dt><dd>${eur(Math.max(0,res))}<small>épargne + aides − paiements</small></dd></div><div><dt>Reste à financer</dt><dd>${eur(left)}</dd></div></dl>
+  <p class="small muted">${eta?`Au rythme des 3 derniers mois (${eur(flow)}/mois mis de côté), la somme serait réunie vers ${mlab(eta)}.`:'Projection disponible dès que tu enregistres des sommes mises de côté.'} Financement atteint : ${pct(Math.round(pr*10)/10)}.</p></section>
+  ${res<0?alertBox('warn',`Les paiements dépassent l'épargne et les aides enregistrées de ${eur(-res)}. Enregistre d'où vient l'argent pour garder un capital exact.`):''}
+  <div class="grid g3">
+    <section class="card"><div class="card-h"><h2>Paiements à l'école</h2><button class="btn sm" data-act="addPayment" data-id="">${ico('plus')}Ajouter</button></div><div class="list">${li(S.payments,'pay')}</div></section>
+    <section class="card"><div class="card-h"><h2>Mis de côté</h2><button class="btn sm" data-act="addSaving">${ico('plus')}Ajouter</button></div><p class="small muted" style="margin-bottom:6px">L'argent réellement réservé à la scolarité. Un surplus calculé n'est pas de l'épargne tant que tu ne l'as pas mis de côté.</p><div class="list">${li(S.savings,'sav')}</div></section>
+    <section class="card"><div class="card-h"><h2>Financements extérieurs</h2><button class="btn sm" data-act="addFunding">${ico('plus')}Ajouter</button></div><p class="small muted" style="margin-bottom:6px">Aide familiale, épargne personnelle, aide ponctuelle… séparés de tes revenus de travail. Total : ${eur(ext)}.</p><div class="list">${li(S.funding,'fund')}</div></section>
+  </div>`;
+};
+
+/* --- Historique --- */
+V.historique=()=>{
+  const cm=mkey(today());const ms=months(mkey(firstDay()),cm);const ch=chain(cm<st().trackStart?st().trackStart:cm);
+  const rows=ms.map(mk=>{const s=monthStats(mk);const c=ch[mk];return{mk,s,c}});
+  const chartRev=stackChart(rows.map(r=>({l:mlabS(r.mk),a:r.s.car,b:r.s.interim,goal:r.c?r.c.goal:null})),'€');
+  const chartH=stackChart(rows.map(r=>({l:mlabS(r.mk),a:r.s.carH,b:r.s.intH})),'h');
+  const p=curPeriod();let cum=0;const capPts=months(mkey(p.start),mkey(p.end)).filter(mk=>mk<=cm).map(mk=>{const a=mk+'-01'<p.start?p.start:mk+'-01';const e=mk+'-'+pad(daysIn(mk));const b=e>p.end?p.end:e;cum+=workIn(a,b).total;return{l:mlabS(mk),v:cum}});
+  let pc=prePaid();const payPts=months(mkey(firstDay()),cm).map(mk=>{pc+=sum(S.payments.filter(x=>mkey(x.date)===mk),x=>x.amount);return{l:mlabS(mk),v:pc}});
+  return `${head('Analyses','Historique')}
+  <section class="card"><div class="card-h"><h2>Revenus par mois</h2><div class="legend"><span><i style="background:var(--navy)"></i>Carrefour</span><span><i style="background:var(--accent)"></i>Intérim</span><span><i style="background:var(--warn)"></i>Objectif</span></div></div>${chartRev}</section>
+  <div class="grid g2">
+    <section class="card"><div class="card-h"><h2>Heures par mois</h2><div class="legend"><span><i style="background:var(--navy)"></i>Carrefour</span><span><i style="background:var(--accent)"></i>Intérim</span></div></div>${chartH}</section>
+    <section class="card"><div class="card-h"><h2>Plafond : cumul de la période</h2></div>${lineChart(capPts,p.cap,'h')}</section>
+  </div>
+  <section class="card"><div class="card-h"><h2>Progression vers ${eur(tuitionTotal())}</h2></div>${lineChart(payPts,tuitionTotal(),'€')}</section>
+  <section class="card"><div class="card-h"><h2>Mois par mois</h2></div><div class="tablewrap"><table><thead><tr><th>Mois</th><th class="n">Carrefour</th><th class="n">Intérim</th><th class="n">Total</th><th class="n">Objectif</th><th class="n">Excédent</th><th class="n">Avance utilisée</th><th class="n">Heures C / I</th><th>Résultat</th></tr></thead><tbody>
+  ${rows.slice().reverse().map(({mk,s,c})=>`<tr><td>${cap1(mlab(mk))}</td><td class="n">${eur(s.car)}</td><td class="n">${eur(s.interim)}</td><td class="n">${eur(s.total)}</td><td class="n">${c?eur(c.goal):'—'}</td><td class="n">${c?eur(c.surplus):'—'}</td><td class="n">${c?eur(c.used):'—'}</td><td class="n">${fH.format(s.carH)} / ${fH.format(s.intH)}</td><td>${!c?pill('','Avant le suivi'):c.deficit>0?pill(mk===cm?'warn':'bad',(mk===cm?'En cours · ':'')+'manque '+eur(c.deficit)):pill('good','Atteint')}</td></tr>`).join('')}
+  </tbody></table></div></section>`;
+};
+function stackChart(data,unit){
+  if(!data.length)return '<div class="empty small">Pas encore de données.</div>';
+  const W=640,H=220,pl=44,pb=26,pt=10;const n=data.length;const bw=Math.min(46,(W-pl-10)/n*0.6);
+  const max=Math.max(1,...data.map(d=>Math.max(d.a+d.b,d.goal||0)))*1.1;const nice=niceMax(max);
+  const y=v=>pt+(H-pt-pb)*(1-v/nice);const x=i=>pl+((W-pl-10)/n)*(i+.5);
+  let g='';for(let k=0;k<=4;k++){const v=nice*k/4;g+=`<line x1="${pl}" x2="${W-6}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end">${fH.format(Math.round(v))}</text>`}
+  const bars=data.map((d,i)=>`<rect x="${x(i)-bw/2}" y="${y(d.a)}" width="${bw}" height="${Math.max(0,y(0)-y(d.a))}" fill="var(--navy)" rx="3"/><rect x="${x(i)-bw/2}" y="${y(d.a+d.b)}" width="${bw}" height="${Math.max(0,y(d.a)-y(d.a+d.b))}" fill="var(--accent)" rx="3"/>${d.goal?`<line x1="${x(i)-bw/2-4}" x2="${x(i)+bw/2+4}" y1="${y(d.goal)}" y2="${y(d.goal)}" stroke="var(--warn)" stroke-width="2.5"/>`:''}<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(d.l)}</text>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Graphique en ${unit}">${g}${bars}</svg>`;
+}
+function lineChart(pts,target,unit){
+  if(!pts.length)return '<div class="empty small">Pas encore de données.</div>';
+  const W=640,H=200,pl=48,pb=26,pt=12;const nice=niceMax(Math.max(target,...pts.map(p=>p.v))*1.05);
+  const n=Math.max(2,pts.length);const y=v=>pt+(H-pt-pb)*(1-v/nice);const x=i=>pl+(W-pl-16)*(i/(n-1));
+  let g='';for(let k=0;k<=4;k++){const v=nice*k/4;g+=`<line x1="${pl}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end">${fH.format(Math.round(v))}</text>`}
+  const path=pts.map((p,i)=>`${i?'L':'M'}${x(i)},${y(p.v)}`).join(' ');
+  const area=path+` L${x(pts.length-1)},${y(0)} L${x(0)},${y(0)} Z`;const last=pts[pts.length-1];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution en ${unit}">${g}<line x1="${pl}" x2="${W-8}" y1="${y(target)}" y2="${y(target)}" stroke="var(--bad)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${W-10}" y="${y(target)-5}" text-anchor="end">${unit==='€'?eur(target):hh(target)}</text><path d="${area}" fill="var(--accent-soft)"/><path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5"/><circle cx="${x(pts.length-1)}" cy="${y(last.v)}" r="4.5" fill="var(--accent)"/>${pts.map((p,i)=>`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(p.l)}</text>`).join('')}</svg>`;
+}
+function niceMax(v){const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e}
+
+/* --- Autorisation de travail --- */
+V.autorisation=()=>`${head('Comprendre ma situation','Autorisation de travail et plafond')}
+  ${alertBox('warn','Cette rubrique résume les sources officielles consultées le 30 octobre 2026. Elle ne remplace pas une vérification auprès de la préfecture ou d\'un juriste. Quand une règle dépend de ton contrat ou d\'une interprétation, c\'est indiqué. Ne dépasse jamais le plafond sans avoir obtenu les autorisations éventuellement nécessaires.')}
+  <section class="card"><div class="prose">
+  <h3>1. La règle générale</h3>
+  <p>Avec une carte de séjour « étudiant » (hors ressortissants algériens, qui ont un régime à part), tu peux exercer une activité salariée <b>à titre accessoire</b> à tes études, dans la limite de <b>964 heures par an</b>, soit 60 % de la durée annuelle légale du travail. Dans cette limite, ta carte suffit : l'employeur n'a pas à demander d'autorisation de travail.</p>
+  <h3>2. Sur quelle période compter</h3>
+  <p>Service-Public indique que la durée annuelle commence à la <b>délivrance de la carte</b> (ou à la validation du VLS-TS), avec cet exemple : carte délivrée le 20 septembre 2023, 964 heures maximum jusqu'au 19 septembre 2024. Ce n'est donc pas l'année civile.</p>
+  <ul><li>Ta carte est valable à partir du 22 septembre 2026 et la décision date du 21 septembre 2026. La période paramétrée (22 sept. 2026 → 21 sept. 2027) suit ta demande, mais la date exacte de « délivrance » retenue par l'administration <b>reste à confirmer</b> auprès de la préfecture.</li><li>Pour une carte pluriannuelle, chaque année suivante repart d'un nouveau compteur à la même date anniversaire, d'après cette logique. Ajoute les périodes suivantes dans « Plafond 964 h » une fois vérifiées.</li><li>Les heures faites sous ton ancien VLS-TS (avant le 22 septembre 2026) appartiennent à l'ancienne période : l'application ne les compte pas ici.</li></ul>
+  <h3>3. Toutes les heures s'additionnent</h3>
+  <p>La limite s'applique à toi, pas à chaque employeur : Carrefour, chaque agence d'intérim et tout autre employeur s'additionnent. Les agences ne connaissent pas tes autres heures : c'est à toi de tenir ce compteur.</p>
+  <h3>4. Travailler au-delà de 964 heures : dans quels cas ?</h3>
+  <p>Le Code du travail (article R. 5221-3) prévoit une autorisation de travail pour l'étudiant dont l'activité salariée dépasse 964 heures <b>en lien avec son cursus</b>. Service-Public cite ces situations :</p>
+  <ul><li><b>Contrat d'apprentissage</b> : travail possible au-delà de 964 h dans le cadre des études ; si le contrat est validé par l'OPCO, l'employeur n'a pas à demander d'autorisation de travail.</li><li><b>Contrat de professionnalisation</b> : au-delà de 964 h, l'employeur doit demander et obtenir une autorisation de travail avant le début de l'activité.</li><li><b>Études comprenant une séquence de travail salarié</b> (doctorant, etc.) : au-delà de 964 h, autorisation à obtenir par l'employeur au préalable.</li></ul>
+  <p>Pour l'apprentissage et la professionnalisation, Service-Public demande en principe plus d'un an de présence en France ; pour l'apprentissage, cette condition ne s'applique pas en cas d'inscription en master ou diplôme de niveau I reconnu par la Conférence des grandes écoles.</p>
+  <p><b>Ce qui en découle pour toi</b> : un job étudiant classique comme Carrefour ou une mission d'intérim sans lien avec ta formation ne correspond à aucun de ces cas d'après les textes consultés. Ne pars pas du principe qu'une autorisation pourra être obtenue pour ce type d'emploi. <b>À confirmer</b> auprès de la préfecture ou de la DREETS si tu envisages un dépassement.</p>
+  <h3>5. Qui fait la demande, quand et où</h3>
+  <ul><li><b>Qui</b> : l'employeur demande l'autorisation de travail (Service-Public). Une association de droit des étrangers indique que, dans certains cas, l'étudiant peut la déposer lui-même avec un mandat écrit de l'employeur : à vérifier sur l'ANEF.</li><li><b>Quand</b> : avant de commencer l'activité qui ferait dépasser 964 heures. L'autorisation doit être obtenue, pas seulement demandée.</li><li><b>Où</b> : en ligne uniquement, sur le site de l'Administration numérique des étrangers en France (ANEF), rubrique autorisation de travail.</li><li><b>Documents</b> : la liste exacte est fixée par le téléservice selon le cas (identité, titre de séjour, contrat, éléments sur l'employeur, justificatif du lien avec la formation…). Elle n'est pas reproduite ici car elle n'a pas pu être vérifiée sur une page officielle.</li><li><b>Délais de traitement</b> : aucun délai officiel vérifiable n'a été trouvé. Prévois une marge large et renseigne-toi sur l'ANEF.</li></ul>
+  <h3>6. Formalités de l'employeur, même sous 964 heures</h3>
+  <p>Chaque employeur (y compris chaque agence d'intérim) doit faire une <b>déclaration nominative</b> à la préfecture du département de son siège, au moins <b>2 jours ouvrables</b> avant l'embauche effective. Pour l'intérim, chaque nouvelle agence est un nouvel employeur.</p>
+  <h3>7. Risques en cas de dépassement sans autorisation</h3>
+  <ul><li>Retrait du titre de séjour étudiant et refus de renouvellement (Service-Public ; article R. 422-7 du CESEDA).</li><li>Pour l'employeur, des sanctions liées à l'emploi d'un étranger sans autorisation de travail.</li><li>Un dépassement peut aussi peser lors d'un futur changement de statut (étudiant vers salarié). Le traitement d'un dossier reste apprécié au cas par cas.</li></ul>
+  <h3>8. Autres points utiles</h3>
+  <ul><li>La carte « étudiant » ne permet pas d'exercer comme <b>travailleur indépendant</b> (micro-entreprise, freelance facturé en ton nom) : Service-Public le précise. Vérifie ta situation avant toute activité indépendante.</li><li>Le plafond est annuel : il n'y a pas de plafond hebdomadaire fixé par cette règle. Les durées maximales du Code du travail (par jour et par semaine) s'appliquent par ailleurs.</li></ul>
+  <h3>Avant d'envisager plus d'heures</h3>
+  <ul><li>Vérifie la date de début exacte de ta période auprès de la préfecture.</li><li>Si une alternance est possible dans ta formation, demande à ton école et à l'employeur quel type de contrat est prévu, car les règles diffèrent.</li><li>Garde tes fiches de paie : ce sont les heures réellement effectuées qui comptent.</li></ul>
+  </div></section>
+  <section class="card"><div class="card-h"><h2>Sources consultées le 30/10/2026</h2></div><div class="src">
+  <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F2713" target="_blank" rel="noopener">Service-Public — Un étudiant étranger peut-il travailler durant ses études ? (fiche F2713, vérifiée le 18 avril 2024 selon la page)</a>
+  <a href="https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006072050/LEGISCTA000018495562/" target="_blank" rel="noopener">Légifrance — Code du travail, articles R. 5221-1 à R. 5221-7 (autorisation de travail)</a>
+  <a href="https://www.legifrance.gouv.fr/codes/id/LEGIARTI000038189475" target="_blank" rel="noopener">Légifrance — Code du travail, articles R. 5221-26 et suivants (travail de l'étudiant étranger)</a>
+  <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006903741" target="_blank" rel="noopener">Légifrance — Code du travail, article L. 5221-9 (déclaration nominative)</a>
+  <a href="https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070158/" target="_blank" rel="noopener">Légifrance — CESEDA (articles L. 422-1 et R. 422-7 : limite de 60 % et retrait du titre)</a>
+  <a href="https://administration-etrangers-en-france.interieur.gouv.fr/" target="_blank" rel="noopener">Ministère de l'Intérieur — ANEF, téléservice des demandes d'autorisation de travail</a>
+  <a href="https://www.info-droits-etrangers.org/le-droit-au-travail-des-etudiants-etrangers/" target="_blank" rel="noopener">Info Droits Étrangers — Le droit au travail des étudiants étrangers (source associative, pour le mandat écrit)</a>
+  <p class="muted">Contact gratuit pour une information générale : Allô Service Public (service rattaché au ministère de l'Intérieur), sans accès à ton dossier personnel.</p>
+  </div></section>`;
+
+/* --- Paramètres --- */
+V.reglages=()=>{const s=st();const f=(k,l,step='0.01',hint='')=>`<div class="field"><label for="set-${k}">${l}</label><input type="number" step="${step}" id="set-${k}" value="${s[k]}" data-chg="set" data-k="${k}">${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+  return `${head('Configuration','Paramètres')}
+  <section class="card"><div class="card-h"><h2>Objectifs et taux</h2></div><div class="fgrid">
+  ${f('monthlyGoal','Objectif mensuel par défaut (€)','1','Utilisé seulement sans accord accepté')}${f('tuition','Coût total de la scolarité (€)','1','Remplacé par le montant de l\'accord quand il existe')}
+  ${f('carrefourMonthly','Salaire Carrefour estimé (€/mois)')}${f('satHours','Durée habituelle du samedi (h)','0.25')}
+  ${f('rateRef','Taux intérim de référence (€/h)','0.01','Estimation avec indemnités placées sur le CET')}${f('ratePrudent','Taux intérim prudent (€/h)','0.01','Net versé, fiche de paie d\'août 2026')}
+  <div class="field"><label for="set-goalRate">Taux utilisé pour les objectifs</label><select id="set-goalRate" data-chg="set" data-k="goalRate"><option value="prudent" ${s.goalRate==='prudent'?'selected':''}>Prudent</option><option value="ref" ${s.goalRate==='ref'?'selected':''}>Référence</option></select></div>
+  <div class="field"><label for="set-weeklyMode">Objectif hebdomadaire</label><select id="set-weeklyMode" data-chg="set" data-k="weeklyMode"><option value="auto" ${s.weeklyMode==='auto'?'selected':''}>Calculé selon la mensualité</option><option value="fixed" ${s.weeklyMode==='fixed'?'selected':''}>Valeur fixe</option></select></div>
+  ${f('weeklyGoal','Objectif hebdomadaire fixe (h)','0.5')}${f('monthlyHoursGoal','Objectif mensuel d\'heures (h)','1','Repère personnel')}
+  <div class="field"><label for="set-trackStart">Début du suivi mensuel</label><input type="month" id="set-trackStart" value="${s.trackStart}" data-chg="set" data-k="trackStart"></div>
+  ${f('warnDays','Alerte avant échéance (jours)','1')}
+  </div><p class="small muted" style="margin-top:12px">Changer un taux recalcule les estimations futures et les missions sans montant confirmé saisies avec ce taux restent à leur propre taux : aucune mission enregistrée n'est modifiée.</p></section>
+  <section class="card"><div class="card-h"><h2>Mes agences d'intérim</h2></div>
+  <div class="list">${myAgencies().map(a=>`<div class="li"><span class="grow t">${esc(a)}</span><button class="btn sm ghost" data-act="delAgency" data-v="${esc(a)}">Retirer</button></div>`).join('')}</div>
+  <div class="row-btns" style="margin-top:12px"><input type="text" id="newAgencyInput" placeholder="Nom d'une nouvelle agence" aria-label="Nouvelle agence" style="flex:1;min-width:180px"><button class="btn" data-act="addAgency">${ico('plus')}Ajouter</button></div>
+  <p class="small muted" style="margin-top:8px">Tu peux aussi ajouter une agence directement en saisissant une mission. Retirer une agence de la liste ne supprime pas ses missions.</p></section>
+  <section class="card"><div class="card-h"><h2>Apparence</h2></div><div class="seg" role="group">${[['system','Système'],['light','Clair'],['dark','Sombre']].map(([v,l])=>`<button data-act="theme" data-v="${v}" aria-pressed="${s.theme===v}">${l}</button>`).join('')}</div></section>
+  <section class="card"><div class="card-h"><h2>Sauvegarde et restauration</h2></div>
+  <p class="small muted">Tes données restent dans ce navigateur, sur cet appareil. Exporte une sauvegarde avant toute mise à jour importante ou changement de téléphone.</p>
+  <div class="row-btns" style="margin-top:12px"><button class="btn" data-act="exportJson">Exporter en JSON</button><button class="btn ghost" data-act="exportCsv">Exporter en CSV</button><label class="btn ghost" for="importFile">Importer un fichier</label><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+  <div class="field" style="margin-top:14px"><label for="backupText">Ou copier / coller la sauvegarde</label><textarea id="backupText" placeholder="Colle ici une sauvegarde JSON pour la restaurer"></textarea></div>
+  <div class="row-btns" style="margin-top:10px"><button class="btn sm ghost" data-act="copyBackup">Copier ma sauvegarde</button><button class="btn sm ghost" data-act="pasteRestore">Restaurer depuis le texte</button><button class="btn sm danger" data-act="resetAll">Réinitialiser les données</button></div></section>
+  <section class="card"><div class="card-h"><h2>Notifications</h2></div><p class="small">Les alertes (plafond, échéances, objectif) s'affichent dans l'application. Les notifications push sur iPhone demandent iOS 16.4 ou plus, une app ajoutée à l'écran d'accueil, ton autorisation et un serveur d'envoi : CAP 1000 n'en utilise pas pour garder tes données sur ton appareil.</p></section>`;
+};
+
+/* ---------- Sheets (forms) ---------- */
+let sheetSubmit=null,sheetInput=null;
+function openSheet(title,body,onSubmit,{submit='Enregistrer',extra='',onInput=null}={}){
+  $('#sheetRoot').innerHTML=`<div class="sheet-bg" data-act="closeBg"><form class="sheet" id="sheetForm" novalidate><div class="sheet-h"><h2>${title}</h2><button type="button" class="x" data-act="closeSheet" aria-label="Fermer">${ico('x')}</button></div>${body}<div class="row-btns">${onSubmit?`<button class="btn" type="submit">${submit}</button>`:''}${extra}<button type="button" class="btn ghost" data-act="closeSheet">${onSubmit?'Annuler':'Fermer'}</button></div></form></div>`;
+  sheetSubmit=onSubmit;sheetInput=onInput;const f=$('#sheetForm');
+  f.addEventListener('submit',e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(f));if(sheetSubmit&&sheetSubmit(fd,f)!==false){closeSheet()}});
+  if(onInput){f.addEventListener('input',e=>onInput(f,e));f.addEventListener('change',e=>onInput(f,e));onInput(f,null)}
+  setTimeout(()=>{const el=f.querySelector('input:not([type=hidden]):not([type=checkbox]),select');el&&window.matchMedia('(min-width:720px)').matches&&el.focus()},60);
+}
+function closeSheet(){$('#sheetRoot').innerHTML='';sheetSubmit=null}
+const fld=(name,label,val='',type='text',attrs='',cls='')=>`<div class="field ${cls}"><label for="f-${name}">${label}</label><input type="${type}" id="f-${name}" name="${name}" value="${esc(val)}" ${attrs}></div>`;
+const sel=(name,label,opts,val,cls='')=>`<div class="field ${cls}"><label for="f-${name}">${label}</label><select id="f-${name}" name="${name}">${opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(val)?'selected':''}>${esc(o[1])}</option>`).join('')}</select></div>`;
+
+function missionSheet(m,presetDate){
+  const isNew=!m;m=m||{date:presetDate||today(),agency:lastAgency(),company:'',hours:6,rate:st().ratePrudent,actual:null,note:''};
+  const agencies=[...new Set([...myAgencies(),...S.missions.map(x=>x.agency).filter(Boolean)])];
+  const body=`<div class="fgrid">${fld('date','Date',m.date,'date','required')}
+  <div class="field full"><label for="f-agency">Agence</label><div class="chips" style="margin-bottom:6px">${myAgencies().map(a=>`<button type="button" class="chip" data-act="chipA" data-v="${esc(a)}" aria-pressed="${a===m.agency}">${esc(a)}</button>`).join('')}<button type="button" class="chip" data-act="newAgency">+ Autre agence</button></div><input id="f-agency" name="agency" list="agList" value="${esc(m.agency)}"><datalist id="agList">${agencies.map(a=>`<option value="${esc(a)}">`).join('')}</datalist></div>
+  ${fld('company','Entreprise',m.company,'text','','full')}
+  <div class="field full"><span class="flabel">Durée réelle (heures)</span><div class="chips">${[4,5,6,7,8].map(h=>`<button type="button" class="chip" data-act="chipH" data-v="${h}" aria-pressed="${+m.hours===h}">${h} h</button>`).join('')}</div><input type="number" step="0.25" min="0" id="f-hours" name="hours" value="${m.hours}" aria-label="Heures" style="margin-top:6px"></div>
+  <div class="field full"><span class="flabel">Taux horaire net (€/h)</span><div class="chips"><button type="button" class="chip" data-act="chipR" data-v="${st().rateRef}">Référence ${eur(st().rateRef)}</button><button type="button" class="chip" data-act="chipR" data-v="${st().ratePrudent}">Prudent ${eur(st().ratePrudent)}</button></div><input type="number" step="0.01" min="0" id="f-rate" name="rate" value="${m.rate}" aria-label="Taux horaire" style="margin-top:6px"></div>
+  ${fld('actual','Montant net réel (si connu)',m.actual??'','number','step="0.01" placeholder="Laisser vide si inconnu"','full')}
+  ${fld('note','Commentaire',m.note,'text','','full')}</div>
+  <div class="preview" id="misPrev"></div>`;
+  openSheet(isNew?'Nouvelle mission':'Modifier la mission',body,fd=>{
+    const h=num(fd.hours),r=num(fd.rate);if(!fd.date||!h||h<=0||r==null){toast('Indique une date, une durée et un taux.');return false}
+    const rec={date:fd.date,agency:fd.agency.trim(),company:fd.company.trim(),hours:h,rate:r,actual:num(fd.actual),note:fd.note.trim()};
+    if(isNew)S.missions.push({id:uid(),...rec});else Object.assign(m,rec);
+    const added=rec.agency&&!myAgencies().some(a=>a.toLowerCase()===rec.agency.toLowerCase());
+    if(added)st().agencies=[...myAgencies(),rec.agency];
+    save();render();toast(added?`Mission ajoutée · ${rec.agency} ajoutée à tes agences`:isNew?'Mission ajoutée':'Mission mise à jour');capToastCheck();
+  },{extra:isNew?'':`<button type="button" class="btn danger" data-act="delMission" data-id="${m.id}">Supprimer</button>`,onInput:f=>{
+    const h=num(f.hours.value)||0,r=num(f.rate.value)||0,a=num(f.actual.value);
+    f.querySelectorAll('[data-act=chipH]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===h));
+    f.querySelectorAll('[data-act=chipA]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===f.agency.value.trim()));
+    const c=capStats(periodOf(f.date.value)||curPeriod());
+    $('#misPrev').innerHTML=`<b>${a!=null?eur(a)+' confirmé':eur(h*r)+' estimé'}</b> <span class="muted small">(${hh(h)} × ${eur(r)})</span><div class="small muted">Plafond après cette mission : ${hh(c.done+(isNew?h:h-m.hours))} / ${hh(c.p.cap)}</div>`;
+  }});
+}
+const myAgencies=()=>Array.isArray(st().agencies)&&st().agencies.length?st().agencies:['Domino RH','RAS Intérim','Iziwork'];
+const lastAgency=()=>S.missions.slice().sort((a,b)=>a.date<b.date?1:-1)[0]?.agency||myAgencies()[0];
+function capToastCheck(){const c=capStats(curPeriod());if(c.lvl>=90)setTimeout(()=>toast(capLvlText(c.lvl)),1600)}
+
+function scenarioSheet(sc){
+  const isNew=!sc;sc=sc?JSON.parse(JSON.stringify(sc)):{...scenario('Nouvelle proposition',10),total:tuitionTotal()};
+  const body=`<div class="fgrid">${fld('name','Nom',sc.name,'text','required','full')}
+  ${fld('total','Coût total (€)',sc.total,'number','step="0.01"')}${fld('deposit','Acompte versé hors échéancier (€)',sc.deposit,'number','step="0.01"')}
+  ${fld('prepaid','Déjà payé avant l\'échéancier (€)',sc.prepaid,'number','step="0.01"')}${fld('first','Date limite du 1er paiement',sc.first,'date')}
+  ${fld('count','Nombre de mensualités',sc.count,'number','min="1" max="60" step="1"')}
+  ${sel('mode','Répartition',[['equal','Mensualités égales'],['last','Dernier paiement différent'],['custom','Montants et dates personnalisés']],sc.mode)}
+  ${fld('lastAmount','Montant du dernier paiement (€)',sc.lastAmount||'','number','step="0.01"','full')}
+  ${fld('note','Note (conditions, interlocuteur…)',sc.note,'text','','full')}</div>
+  <div class="preview" id="scPrev"></div>`;
+  let cur=sc;
+  openSheet(isNew?'Nouvelle proposition':'Modifier la proposition',body,fd=>{
+    readScn(cur,fd,$('#sheetForm'));if(!cur.name.trim()){toast('Donne un nom à la proposition.');return false}
+    if(cur.mode==='custom')cur.items=genItems(cur);
+    if(isNew)S.scenarios.push(cur);else{const i=S.scenarios.findIndex(x=>x.id===cur.id);S.scenarios[i]=cur}
+    save();render();toast('Proposition enregistrée · simulation');
+  },{extra:isNew?'':`<button type="button" class="btn danger" data-act="delScn" data-id="${sc.id}">Supprimer</button>`,onInput:(f,e)=>{
+    const itemEdit=e&&e.target&&/^it_/.test(e.target.name||'');
+    const sig0=[cur.first,cur.total,cur.deposit,cur.prepaid].join('|');
+    readScn(cur,Object.fromEntries(new FormData(f)),f);
+    if(cur.mode==='custom'&&!itemEdit&&e&&sig0!==[cur.first,cur.total,cur.deposit,cur.prepaid].join('|'))cur.items=[];
+    f.querySelector('#f-lastAmount').closest('.field').hidden=cur.mode!=='last';
+    const items=genItems(cur);const net=r2(cur.total-cur.deposit-cur.prepaid);const s=r2(sum(items,i=>i.amount));
+    const custom=cur.mode==='custom';
+    const headH=`<b>${items.length} paiements · ${eur(s)}</b>${Math.abs(s-net)>0.01?pill('warn','Écart '+eur(s-net)):pill('good','Total juste')}`;
+    if(itemEdit){$('#scHead').innerHTML=headH;cur.items=items;return}
+    $('#scPrev').innerHTML=`<div class="card-h" id="scHead" style="margin-bottom:6px">${headH}</div>
+    <div class="list">${items.map((it,i)=>custom?`<div class="li" style="gap:8px"><input type="date" name="it_due_${i}" value="${it.due}" aria-label="Date ${i+1}"><input type="number" step="0.01" name="it_amt_${i}" value="${it.amount}" aria-label="Montant ${i+1}" style="max-width:130px"></div>`:`<div class="li"><span class="grow">${dlab(it.due)} ${pd(it.due).getFullYear()}</span><span class="amt">${eur(it.amount)}</span></div>`).join('')}</div>`;
+    if(custom)cur.items=items;
+  }});
+}
+function readScn(sc,fd,f){
+  sc.name=fd.name??sc.name;sc.total=num(fd.total)??0;sc.deposit=num(fd.deposit)??0;sc.prepaid=num(fd.prepaid)??0;sc.first=fd.first||sc.first;
+  sc.count=Math.max(1,Math.min(60,num(fd.count)||1));sc.mode=fd.mode||'equal';sc.lastAmount=num(fd.lastAmount)??0;sc.note=fd.note??'';
+  if(sc.mode==='custom'&&f){const items=[];for(let i=0;i<sc.count;i++){const d=f.querySelector(`[name=it_due_${i}]`),a=f.querySelector(`[name=it_amt_${i}]`);items.push(d&&a?{due:d.value,amount:num(a.value)??0}:sc.items?.[i]||null)}sc.items=items.map((x,i)=>x||undefined)}
+}
+function planAccept(sc,adjust){
+  const items=genItems(sc);const act=activeInst();
+  const kept=act.filter(i=>paidOn(i)>0);const drop=act.filter(i=>paidOn(i)===0);
+  const lastKept=kept.reduce((a,i)=>i.due>a?i.due:a,'');
+  let add=(kept.length?items.filter(it=>it.due>lastKept):items).map(x=>({...x}));
+  const target=r2(sc.total-sc.deposit-sc.prepaid-sum(kept,i=>i.amount));
+  let gap=r2(sum(add,i=>i.amount)-target);
+  if(adjust&&add.length&&Math.abs(gap)>0.005){const L=add[add.length-1];L.amount=r2(L.amount-gap);if(L.amount<0){L.amount=r2(L.amount+gap)}else gap=0}
+  return{kept,drop,add,target,gap};
+}
+function acceptSheet(sc){
+  const body=`<p>Tu vas faire de <b>${esc(sc.name)}</b> ton accord officiel. Ton objectif de revenus suivra alors chaque mensualité de cet accord.</p>
+  ${fld('confirmDate','Date de confirmation avec l\'établissement',today(),'date','required')}
+  <label class="check"><input type="checkbox" name="adjust" checked> Ajuster la dernière nouvelle échéance pour que le total tombe juste</label>
+  <div class="preview" id="accPrev"></div>
+  <label class="check"><input type="checkbox" name="confirmed" required> J'ai confirmé ces conditions avec l'établissement.</label>`;
+  openSheet('Marquer comme accord accepté',body,fd=>{
+    if(!fd.confirmed){toast('Coche la confirmation avec l\'établissement.');return false}
+    const pl=planAccept(sc,!!fd.adjust);const rev=S.revisions.length+1;
+    pl.drop.forEach(i=>i.sup=rev);pl.add.forEach(it=>S.installments.push({id:uid(),due:it.due,amount:it.amount,rev,sup:null}));
+    S.agreement={scenarioId:sc.id,name:sc.name,total:sc.total,deposit:sc.deposit,prepaid:sc.prepaid,confirmDate:fd.confirmDate||today(),rev};
+    S.revisions.push({rev,date:today(),name:sc.name,summary:`${pl.kept.length} échéance(s) déjà payée(s) conservée(s), ${pl.drop.length} remplacée(s), ${pl.add.length} nouvelle(s). Confirmé le ${dlab(fd.confirmDate||today())}.`});
+    UI.ech='accord';save();render();toast('Accord accepté enregistré');
+  },{submit:'Accepter cette proposition',onInput:f=>{
+    const pl=planAccept(sc,f.adjust.checked);
+    $('#accPrev').innerHTML=`${pl.kept.length?`<p class="small"><b>Conservées</b> (déjà payées, même partiellement) : ${pl.kept.map(i=>dlab(i.due)+' · '+eur(i.amount)).join(', ')}</p>`:''}
+    ${pl.drop.length?`<p class="small"><b>Remplacées</b> (gardées dans l'historique) : ${pl.drop.length} échéance(s) non payée(s)</p>`:''}
+    <p class="small"><b>Nouvelles échéances</b> : ${pl.add.length} · total ${eur(sum(pl.add,i=>i.amount))} pour ${eur(pl.target)} restant dû</p>
+    ${Math.abs(pl.gap)>0.005?`<p class="small" style="color:var(--warn)">Écart de ${eur(pl.gap)} avec le coût total.</p>`:''}
+    <div class="list">${pl.add.map(i=>`<div class="li"><span class="grow">${dlab(i.due)} ${pd(i.due).getFullYear()}</span><span class="amt">${eur(i.amount)}</span></div>`).join('')}</div>`;
+  }});
+}
+function instSheet(inst){
+  const isNew=!inst;inst=inst||{due:today(),amount:0};
+  openSheet(isNew?'Ajouter une échéance':'Modifier l\'échéance',`<p class="small muted">La modification crée une nouvelle version de l'accord. L'ancienne échéance reste visible dans l'historique.</p><div class="fgrid">${fld('due','Date limite',inst.due,'date','required')}${fld('amount','Montant (€)',inst.amount,'number','step="0.01" min="0"')}${fld('why','Motif',isNew?'Échéance ajoutée':'Modification négociée','text','','full')}</div>`,fd=>{
+    const a=num(fd.amount);if(!fd.due||a==null||a<0){toast('Indique une date et un montant.');return false}
+    const rev=S.revisions.length+1;if(!isNew)inst.sup=rev;
+    if(a>0)S.installments.push({id:uid(),due:fd.due,amount:a,rev,sup:null});
+    S.agreement.rev=rev;S.revisions.push({rev,date:today(),name:S.agreement.name,summary:isNew?`${fd.why} : ${eur(a)} au ${dlab(fd.due)}.`:`${fd.why} : ${eur(inst.amount)} au ${dlab(inst.due)} → ${a>0?eur(a)+' au '+dlab(fd.due):'supprimée'}.`});
+    save();render();toast('Échéancier mis à jour');
+  },{extra:isNew?'':`<button type="button" class="btn danger" data-act="delInst" data-id="${inst.id}">Retirer cette échéance</button>`});
+}
+function paymentSheet(instId){
+  const open=activeInst().filter(i=>paidOn(i)<i.amount-0.005);const def=instId||open[0]?.id||'';const di=S.installments.find(i=>i.id===def);
+  const opts=[['','Hors échéancier (frais, acompte…)'],...open.map(i=>[i.id,`${dlab(i.due)} ${pd(i.due).getFullYear()} — reste ${eur(i.amount-paidOn(i))}`])];
+  openSheet('Paiement à l\'école',`<div class="fgrid">${sel('instId','Échéance concernée',opts,def,'full')}${fld('date','Date réelle du paiement',today(),'date','required')}${fld('amount','Montant payé (€)',di?r2(di.amount-paidOn(di)):'','number','step="0.01" min="0"')}
+  ${sel('method','Moyen de paiement',[['Virement','Virement'],['Carte bancaire','Carte bancaire'],['Prélèvement','Prélèvement'],['Chèque','Chèque'],['Espèces','Espèces'],['Autre','Autre']],'Virement')}${fld('note','Référence ou commentaire','','text','','full')}</div>
+  <p class="small muted">Si tu paies une mensualité en plusieurs fois, saisis chaque versement : le solde restant est conservé.</p>`,fd=>{
+    const a=num(fd.amount);if(!a||a<=0){toast('Indique un montant.');return false}
+    S.payments.push({id:uid(),date:fd.date,amount:a,method:fd.method,note:fd.note.trim(),instId:fd.instId||null});save();render();toast('Paiement enregistré');
+  },{onInput:f=>{if(f.instId._last===undefined){f.instId._last=f.instId.value;return}if(f.instId._last!==f.instId.value){f.instId._last=f.instId.value;const i=S.installments.find(x=>x.id===f.instId.value);f.amount.value=i?r2(i.amount-paidOn(i)):''}}});
+}
+function moneySheet(kind){
+  const isF=kind==='fund';
+  openSheet(isF?'Financement extérieur':'Mettre de côté pour la scolarité',`<div class="fgrid">${fld('date','Date',today(),'date')}${fld('amount','Montant (€)','','number','step="0.01" min="0"')}${isF?sel('source','Source',[['Aide familiale','Aide familiale'],['Épargne personnelle','Épargne personnelle'],['Aide ponctuelle','Aide ponctuelle'],['Autre','Autre']],'Aide familiale','full'):''}${fld('note','Commentaire','','text','','full')}</div>`,fd=>{
+    const a=num(fd.amount);if(!a||a<=0){toast('Indique un montant.');return false}
+    (isF?S.funding:S.savings).push({id:uid(),date:fd.date||today(),amount:a,source:fd.source,note:fd.note.trim()});save();render();toast('Enregistré');
+  });
+}
+function periodSheet(p){
+  const isNew=!p;const last=S.periods.slice().sort((a,b)=>a.end<b.end?1:-1)[0];
+  p=p||{start:addDays(last.end,1),end:addDays(addDays(last.end,1),364),cap:964,label:'Période suivante (à vérifier)'};
+  openSheet(isNew?'Nouvelle période':'Modifier la période',`<div class="fgrid">${fld('label','Nom',p.label,'text','','full')}${fld('start','Début',p.start,'date')}${fld('end','Fin',p.end,'date')}${fld('cap','Plafond (heures)',p.cap,'number','step="1" min="0"','full')}</div><p class="small muted">Chaque période a son propre compteur. Modifie ces dates seulement après vérification de la règle applicable.</p>`,fd=>{
+    if(!fd.start||!fd.end||fd.end<fd.start){toast('Vérifie les dates.');return false}
+    const rec={label:fd.label.trim()||'Période',start:fd.start,end:fd.end,cap:num(fd.cap)||964};
+    if(isNew)S.periods.push({id:uid(),...rec});else Object.assign(p,rec);save();render();toast('Période enregistrée');
+  },{extra:!isNew&&S.periods.length>1?`<button type="button" class="btn danger" data-act="delPeriod" data-id="${p.id}">Supprimer</button>`:''});
+}
+function daySheet(d){
+  const isSat=pd(d).getDay()===6&&d>=firstDay();const x=satOf(d);const ms=S.missions.filter(m=>m.date===d);const due=activeInst().filter(i=>i.due===d);
+  openSheet(cap1(dlong(d)),`${isSat?`<div class="field"><span class="flabel">Samedi Carrefour</span><div class="seg st" role="group">${[['worked','Travaillé'],['off','Non travaillé'],['pending','En attente']].map(([v,l])=>`<button type="button" data-act="satSet" data-d="${d}" data-v="${v}" data-keep="1" aria-pressed="${x.st===v}">${l}</button>`).join('')}</div></div>`:''}
+  <div><span class="flabel">Missions</span><div class="list">${ms.map(missionLi).join('')||'<p class="small muted">Aucune mission ce jour.</p>'}</div></div>
+  ${due.length?`<div><span class="flabel">Échéances</span>${due.map(i=>`<p>${eur(i.amount)} ${pill(instStatus(i).c,instStatus(i).l)}</p>`).join('')}</div>`:''}`,null,{extra:`<button type="button" class="btn" data-act="addMission" data-d="${d}">${ico('plus')}Mission ce jour</button>`});
+}
+
+/* ---------- Toast ---------- */
+let tT;function toast(m){$('#toastRoot').innerHTML=`<div class="toast" role="status">${esc(m)}</div>`;clearTimeout(tT);tT=setTimeout(()=>$('#toastRoot').innerHTML='',2600)}
+
+/* ---------- Backup ---------- */
+function download(name,text,type){try{const b=new Blob([text],{type});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('Fichier exporté. S\'il n\'apparaît pas, utilise « Copier ma sauvegarde ».')}catch(e){toast('Téléchargement impossible ici : utilise « Copier ma sauvegarde ».')}}
+function csv(){const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;const L=[['type','date','heures','taux','montant','statut','agence/source','entreprise/moyen','commentaire'].join(';')];
+  Object.entries(S.saturdays).sort().forEach(([d,x])=>L.push(['carrefour',d,x.st==='worked'?x.h:0,'',x.st==='worked'?r2(x.h*carRate()):0,x.st,'Carrefour','',''].map(q).join(';')));
+  S.missions.forEach(m=>L.push(['mission',m.date,m.hours,m.rate,missionAmt(m),m.actual!=null?'confirmé':'estimé',m.agency,m.company,m.note].map(q).join(';')));
+  S.payments.forEach(p=>L.push(['paiement_ecole',p.date,'','',p.amount,'',p.instId?'échéance':'hors échéancier',p.method,p.note].map(q).join(';')));
+  S.savings.forEach(p=>L.push(['mis_de_cote',p.date,'','',p.amount,'','','',p.note].map(q).join(';')));
+  S.funding.forEach(p=>L.push(['financement',p.date,'','',p.amount,'',p.source,'',p.note].map(q).join(';')));
+  activeInst().forEach(i=>L.push(['echeance',i.due,'','',i.amount,instStatus(i).l,'','',''].map(q).join(';')));
+  return '﻿'+L.join('\n')}
+function restore(text){try{const d=JSON.parse(text);if(!d||!d.settings||!Array.isArray(d.missions))throw 0;S=Object.assign(defaults(),d);save();render();toast('Sauvegarde restaurée')}catch(e){toast('Ce fichier n\'est pas une sauvegarde CAP 1000 valide.')}}
+
+/* ---------- Actions ---------- */
+const A={
+  go:b=>{if(b.dataset.tab)UI.ech=b.dataset.tab;nav(b.dataset.v)},
+  menu:()=>openSheet('Menu',`<div class="nav">${NAV.map(([k,l,i])=>`<button type="button" data-act="go" data-v="${k}" aria-current="${route()===k?'page':'false'}">${ico(i)}${l}</button>`).join('')}</div>`,null),
+  addMission:b=>missionSheet(null,b.dataset.d),
+  editMission:b=>missionSheet(S.missions.find(m=>m.id===b.dataset.id)),
+  delMission:b=>confirmInline(b,()=>{S.missions=S.missions.filter(m=>m.id!==b.dataset.id);save();closeSheet();render();toast('Mission supprimée')}),
+  chipH:b=>{const f=$('#sheetForm');f.hours.value=b.dataset.v;f.dispatchEvent(new Event('input'))},
+  newAgency:()=>{const f=$('#sheetForm');f.agency.value='';f.agency.placeholder='Nom de la nouvelle agence';f.agency.focus();f.dispatchEvent(new Event('input'))},
+  addAgency:()=>{const i=$('#newAgencyInput');const v=(i.value||'').trim();if(!v){toast('Écris le nom de l\'agence.');return}if(myAgencies().some(a=>a.toLowerCase()===v.toLowerCase())){toast('Cette agence est déjà dans ta liste.');return}st().agencies=[...myAgencies(),v];save();render();toast(v+' ajoutée')},
+  delAgency:b=>confirmInline(b,()=>{const l=myAgencies().filter(a=>a!==b.dataset.v);if(!l.length){toast('Garde au moins une agence.');return}st().agencies=l;save();render();toast('Agence retirée de la liste (ses missions sont conservées)')}),
+  chipA:b=>{const f=$('#sheetForm');f.agency.value=b.dataset.v;f.dispatchEvent(new Event('input'))},
+  chipR:b=>{const f=$('#sheetForm');f.rate.value=b.dataset.v;f.dispatchEvent(new Event('input'))},
+  satSet:b=>{const d=b.dataset.d;const x=satOf(d);S.saturdays[d]={st:b.dataset.v,h:x.h||st().satHours};save();if(b.dataset.keep){b.parentNode.querySelectorAll('button').forEach(y=>y.setAttribute('aria-pressed',y===b));render(true)}else render();toast(b.dataset.v==='worked'?`Samedi ${dlab(d)} validé : ${hh(S.saturdays[d].h)}`:'Statut mis à jour')},
+  echTab:b=>{UI.ech=b.dataset.v;nav('echeancier')},
+  editScn:b=>scenarioSheet(S.scenarios.find(s=>s.id===b.dataset.id)),
+  dupScn:b=>{const s=S.scenarios.find(x=>x.id===b.dataset.id);const c=JSON.parse(JSON.stringify(s));c.id=uid();c.name=s.name+' (copie)';S.scenarios.push(c);save();render();toast('Proposition dupliquée')},
+  delScn:b=>confirmInline(b,()=>{S.scenarios=S.scenarios.filter(s=>s.id!==b.dataset.id);save();closeSheet();render();toast('Proposition supprimée')}),
+  projScn:b=>{UI.projSrc=b.dataset.id;UI.ech='proj';render()},
+  acceptScn:b=>acceptSheet(S.scenarios.find(s=>s.id===b.dataset.id)),
+  editInst:b=>instSheet(b.dataset.id?S.installments.find(i=>i.id===b.dataset.id):null),
+  delInst:b=>confirmInline(b,()=>{const i=S.installments.find(x=>x.id===b.dataset.id);const rev=S.revisions.length+1;i.sup=rev;S.agreement.rev=rev;S.revisions.push({rev,date:today(),name:S.agreement.name,summary:`Échéance de ${eur(i.amount)} au ${dlab(i.due)} retirée.`});save();closeSheet();render();toast('Échéance retirée')}),
+  addPayment:b=>paymentSheet(b.dataset.id),
+  addSaving:()=>moneySheet('sav'),addFunding:()=>moneySheet('fund'),
+  delEntry:b=>confirmInline(b,()=>{const k={pay:'payments',sav:'savings',fund:'funding'}[b.dataset.kind];S[k]=S[k].filter(x=>x.id!==b.dataset.id);save();render();toast('Supprimé')}),
+  editPeriod:b=>periodSheet(S.periods.find(p=>p.id===b.dataset.id)),
+  delPeriod:b=>confirmInline(b,()=>{S.periods=S.periods.filter(p=>p.id!==b.dataset.id);save();closeSheet();render()}),
+  dayOpen:b=>daySheet(b.dataset.d),
+  dashPrev:()=>{UI.dashMonth=addMonth(UI.dashMonth,-1);render()},dashNext:()=>{UI.dashMonth=addMonth(UI.dashMonth,1);render()},
+  calPrev:()=>{UI.calMonth=addMonth(UI.calMonth,-1);render()},calNext:()=>{UI.calMonth=addMonth(UI.calMonth,1);render()},
+  theme:b=>{st().theme=b.dataset.v;applyTheme();save();render()},
+  exportJson:()=>download(`cap1000-sauvegarde-${today()}.json`,JSON.stringify(S,null,2),'application/json'),
+  exportCsv:()=>download(`cap1000-donnees-${today()}.csv`,csv(),'text/csv'),
+  copyBackup:()=>{const t=JSON.stringify(S);const ta=$('#backupText');ta.value=t;try{navigator.clipboard.writeText(t).then(()=>toast('Sauvegarde copiée'),()=>{ta.select();toast('Sauvegarde affichée : sélectionne et copie-la')})}catch(e){ta.select();toast('Sauvegarde affichée : sélectionne et copie-la')}},
+  pasteRestore:b=>{const t=$('#backupText').value.trim();if(!t){toast('Colle d\'abord une sauvegarde.');return}confirmInline(b,()=>restore(t))},
+  resetAll:b=>confirmInline(b,()=>{S=defaults();save();UI.dashMonth=null;render();toast('Données réinitialisées')}),
+  closeSheet:()=>closeSheet(),
+  closeBg:(b,e)=>{if(e.target===b)closeSheet()},
+};
+function confirmInline(b,fn){if(b.dataset.armed){fn();return}b.dataset.armed='1';const t=b.textContent;b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=t}},3500)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const f=A[b.dataset.act];if(!f)return;if(b.tagName==='BUTTON'&&b.type!=='submit')e.preventDefault();f(b,e)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();if((e.key==='Enter'||e.key===' ')&&e.target.matches('.li[data-act]')){e.preventDefault();e.target.click()}});
+document.addEventListener('change',e=>{const el=e.target;const k=el.dataset.chg;
+  if(el.id==='importFile'&&el.files[0]){const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(el.files[0]);return}
+  if(!k)return;
+  if(k==='set'){const key=el.dataset.k;if(key==='agencies'){const l=el.value.split(',').map(x=>x.trim()).filter(Boolean);if(l.length)st().agencies=[...new Set(l)]}else st()[key]=(el.type==='number')?(num(el.value)??st()[key]):el.value;save();render();toast('Paramètre enregistré')}
+  if(k==='satH'){const v=num(el.value);if(v!=null&&v>=0){S.saturdays[el.dataset.d]={st:'worked',h:v};save();render();toast('Heures du samedi mises à jour')}}
+  if(k==='carPay'){const v=num(el.value);if(v==null)delete S.carrefourPay[el.dataset.m];else S.carrefourPay[el.dataset.m]=v;save();render();toast('Salaire réel enregistré')}
+  if(k==='projSrc'){UI.projSrc=el.value;render()}
+});
+
+/* ---------- Router ---------- */
+const route=()=>{const h=location.hash.slice(1);return V[h]?h:'dash'};
+function nav(v){closeSheet();if(location.hash.slice(1)!==v)location.hash=v;else render();window.scrollTo(0,0)}
+function render(keepSheet){
+  const v=route();$('#main').innerHTML=V[v]();
+  $('#sidenav').innerHTML=NAV.map(([k,l,i])=>`<button data-act="go" data-v="${k}" aria-current="${v===k?'page':'false'}">${ico(i)}${l}</button>`).join('');
+  const tb=[['dash','Accueil','home'],['echeancier','Échéancier','ech'],null,['calendrier','Calendrier','cal']];
+  $('#tabbar').innerHTML=tb.map(t=>t?`<button data-act="go" data-v="${t[0]}" aria-current="${v===t[0]?'page':'false'}">${ico(t[2])}${t[1]}</button>`:`<button data-act="addMission" aria-label="Ajouter une mission"><span class="plus">${ico('plus')}</span></button>`).join('')+`<button data-act="menu" aria-current="${['dash','echeancier','calendrier'].includes(v)?'false':'page'}">${ico('menu')}Plus</button>`;
+}
+function applyTheme(){const t=st().theme;if(t==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t)}
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
+window.addEventListener('storage',e=>{if(e.key===KEY){load();render()}});
+
+load();applyTheme();render();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.self===window.top&&!/claude|anthropic/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+window.CAP={S:()=>S,genItems,project,summarize,chain,capStats,capacity,monthStats,planAccept,instStatus,weeklyGoal};
+</script>
+
+</body>
+</html>
